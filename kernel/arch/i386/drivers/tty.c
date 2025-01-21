@@ -3,9 +3,9 @@
 #include <stdint.h>
 #include <string.h>
 
-#include <drivers/tty.h>
-#include <drivers/vga.h>
-#include <drivers/io.h>
+#include <arch/drivers/tty.h>
+#include <arch/drivers/vga.h>
+#include <arch/drivers/io.h>
 
 #define VGA_COMMAND_PORT 0x3d4
 #define VGA_DATA_PORT 0x3d5

@@ -2,9 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <drivers/io.h>
-#include <cpu/idt.h>
-#include <cpu/isr.h>
+#include <arch/drivers/io.h>
+#include <arch/cpu/idt.h>
+#include <arch/cpu/isr.h>
 
 isr_t interrupt_handlers[256];
 

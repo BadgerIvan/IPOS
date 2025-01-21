@@ -1,9 +1,9 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include <cpu/isr.h>
-#include <drivers/io.h>
-#include <drivers/keyboard.h>
+#include <arch/cpu/isr.h>
+#include <arch/drivers/io.h>
+#include <arch/drivers/keyboard.h>
 
 static void keyboard_callback(registers_t *regs) {
     uint8_t scancode = inb(0x60);

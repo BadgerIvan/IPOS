@@ -1,4 +1,4 @@
-#include <cpu/isr.h>
+#include <arch/cpu/isr.h>
 
 #ifndef _KEYBOARD_H 
 #define _KEYBOARD_H 1

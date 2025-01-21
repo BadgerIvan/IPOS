@@ -1,11 +1,12 @@
 #include <stdint.h>
-#include <cpu/idt.h>
+
+#include <arch/cpu/idt.h>
 
 #define IDT_ENTRIES 256
 #define KERNEL_CS 0x08
 
-#define low_16(address) (uint16_t)((address) & 0xFFFF)
-#define high_16(address) (uint16_t)(((address) >> 16) & 0xFFFF)
+#define low_16(address) (uint32_t)((address) & 0xFFFF)
+#define high_16(address) (uint32_t)(((address) >> 16) & 0xFFFF)
 
 typedef struct {
     uint16_t low_offset;
@@ -34,5 +35,5 @@ void set_idt_gate(int n, uint32_t handler) {
 void load_idt() {
     idt_reg.base = (uint32_t) &idt;
     idt_reg.limit = IDT_ENTRIES * sizeof(idt_gate_t) - 1;
-    asm volatile("lidt (%0)" : : "r" (&idt_reg));
+    asm volatile("lidt (%0)" : : "m" (idt_reg));
 }

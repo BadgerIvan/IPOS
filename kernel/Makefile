@@ -2,7 +2,7 @@ DEFAULT_HOST!=../default-host.sh
 HOST?=DEFAULT_HOST
 HOSTARCH!=../target-triplet-to-arch.sh $(HOST)
 
-CFLAGS?=-O2 -g
+CFLAGS?=
 CPPFLAGS?=
 LDFLAGS?=
 LIBS?=
@@ -20,12 +20,17 @@ LDFLAGS:=$(LDFLAGS)
 LIBS:=$(LIBS) -nostdlib -lk -lgcc
 
 ARCHDIR=arch/$(HOSTARCH)
-DRIVERSDIR=drivers/$(HOSTARCH)
-CPUDIR=cpu/$(HOSTARCH)
 
-include $(ARCHDIR)/make.config
+BOOTLOADERDIR=$(ARCHDIR)/boot
+CPUDIR=$(ARCHDIR)/cpu
+DRIVERSDIR=$(ARCHDIR)/drivers
+
+DEBUGDIR=debug
+
+include $(BOOTLOADERDIR)/make.config
 include $(DRIVERSDIR)/make.config
 include $(CPUDIR)/make.config
+include $(DEBUGDIR)/make.config
 
 CFLAGS:=$(CFLAGS) $(KERNEL_ARCH_CFLAGS)
 CPPFLAGS:=$(CPPFLAGS) $(KERNEL_ARCH_CPPFLAGS)
@@ -36,26 +41,29 @@ KERNEL_OBJS=\
 $(KERNEL_ARCH_OBJS) \
 kernel/kernel.o \
 
-
 OBJS=\
-$(ARCHDIR)/crti.o \
-$(ARCHDIR)/crtbegin.o \
+$(BOOTLOADERDIR)/crti.o \
+$(BOOTLOADERDIR)/crtbegin.o \
+$(BOOTLOADERDIR)/crtend.o \
+$(BOOTLOADERDIR)/crtn.o \
+$(BOOT_OBJS) \
 $(KERNEL_OBJS) \
-$(ARCHDIR)/crtend.o \
-$(ARCHDIR)/crtn.o \
 $(DRIVERS_OBJS) \
 $(CPU_OBJS) \
+$(DEBUG_OBJS) \
 
 LINK_LIST=\
 $(LDFLAGS) \
-$(ARCHDIR)/crti.o \
-$(ARCHDIR)/crtbegin.o \
+$(BOOT_OBJS) \
+$(BOOTLOADERDIR)/crti.o \
+$(BOOTLOADERDIR)/crtbegin.o \
+$(DEBUG_OBJS) \
 $(KERNEL_OBJS) \
 $(DRIVERS_OBJS) \
 $(CPU_OBJS) \
 $(LIBS) \
-$(ARCHDIR)/crtend.o \
-$(ARCHDIR)/crtn.o \
+$(BOOTLOADERDIR)/crtend.o \
+$(BOOTLOADERDIR)/crtn.o \
 
 .PHONY: all clean install install-headers install-kernel
 .SUFFIXES: .o .c .S .asm
@@ -66,7 +74,7 @@ myos.kernel: $(OBJS) $(ARCHDIR)/linker.ld
 	$(CC) -T $(ARCHDIR)/linker.ld -o $@ $(CFLAGS) $(LINK_LIST)
 	grub-file --is-x86-multiboot myos.kernel
 
-$(ARCHDIR)/crtbegin.o $(ARCHDIR)/crtend.o:
+$(BOOTLOADERDIR)/crtbegin.o $(BOOTLOADERDIR)/crtend.o:
 	OBJ=`$(CC) $(CFLAGS) $(LDFLAGS) -print-file-name=$(@F)` && cp "$$OBJ" $@
 
 .c.o:
@@ -88,6 +96,8 @@ install: install-headers install-kernel
 install-headers:
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	cp -R --preserve=timestamps include/. $(DESTDIR)$(INCLUDEDIR)/.
+	mkdir -p $(DESTDIR)$(INCLUDEDIR)/arch
+	cp -R --preserve=timestamps $(ARCHDIR)/include/. $(DESTDIR)$(INCLUDEDIR)/arch/.
 
 install-kernel: myos.kernel
 	mkdir -p $(DESTDIR)$(BOOTDIR)

@@ -1,8 +1,8 @@
 #include <stdio.h>
 
-#include <cpu/isr.h>
-#include <drivers/io.h>
-#include <drivers/timer.h>
+#include <arch/cpu/isr.h>
+#include <arch/drivers/io.h>
+#include <arch/drivers/timer.h>
 
 static uint32_t tick = 0;
 
