@@ -8,6 +8,7 @@
 #include <arch/drivers/timer.h>
 #include <arch/drivers/serial.h>
 #include <debug/debug.h>
+#include <kernel/panic.h>
 
 void kernel_main(void) {
 
@@ -23,12 +24,7 @@ void kernel_main(void) {
 	
 	isr_run();
 	debug("ISR: run\n");
+	
+	isr0();
 
-	// while (1) {
-    //     if (inb(0x64) & 1) {  // Проверяем, установлен ли бит 0 (данные готовы)
-    //         uint8_t scancode = inb(0x60);  // Считываем скан-код из порта данных
-    //         printf("%x", scancode);
-    //     }
-	// 	for(int i = 0; i < 100000; i++) { }
-    // }
 }

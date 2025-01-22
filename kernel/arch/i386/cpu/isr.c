@@ -5,6 +5,8 @@
 #include <arch/drivers/io.h>
 #include <arch/cpu/idt.h>
 #include <arch/cpu/isr.h>
+#include <debug/debug.h>
+#include <kernel/panic.h>
 
 isr_t interrupt_handlers[256];
 
@@ -116,8 +118,13 @@ void isr_run() {
     asm volatile("sti");
 }
 
+void isr_stop() {
+    asm volatile("cli");
+}
+
 void isr_handler(registers_t *r) {
     printf("\n%s %d %s\n", "received interrupt: ", r->int_no, exception_messages[r->int_no]);
+    panic();
 }
 
 void register_interrupt_handler(uint8_t n, isr_t handler) {

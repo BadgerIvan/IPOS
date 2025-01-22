@@ -1,8 +1,5 @@
 #ifndef _DEBUG_H
-#define _DEBUG_H 1
-
-__attribute__((__noreturn__))
-void kernel_panic();
+#define _DEBUG_H
 
 void debug(const char* str);
 

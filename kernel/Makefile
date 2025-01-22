@@ -25,16 +25,14 @@ BOOTLOADERDIR=$(ARCHDIR)/boot
 CPUDIR=$(ARCHDIR)/cpu
 DRIVERSDIR=$(ARCHDIR)/drivers
 
+KERNELDIR=kernel
 DEBUGDIR=debug
 
 include $(BOOTLOADERDIR)/make.config
+include $(KERNELDIR)/make.config
 include $(DRIVERSDIR)/make.config
 include $(CPUDIR)/make.config
 include $(DEBUGDIR)/make.config
-
-KERNEL_OBJS=\
-$(KERNEL_ARCH_OBJS) \
-kernel/kernel.o \
 
 OBJS=\
 $(BOOTLOADERDIR)/crti.o \

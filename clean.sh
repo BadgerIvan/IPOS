@@ -9,3 +9,5 @@ done
 rm -rf sysroot
 rm -rf isodir
 rm -rf ipos.iso
+
+. ./headers.sh

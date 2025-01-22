@@ -1,7 +1,7 @@
-#include <arch/cpu/isr.h>
-
 #ifndef _KEYBOARD_H 
-#define _KEYBOARD_H 1
+#define _KEYBOARD_H
+
+#include <arch/cpu/isr.h>
 
 void init_keyboard();
 

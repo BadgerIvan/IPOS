@@ -1,7 +1,7 @@
-#include <stdint.h>
-
 #ifndef _IDT_H
-#define _IDT_H 1
+#define _IDT_H
+
+#include <stdint.h>
 
 void set_idt_gate(int n, uint32_t handler);
 

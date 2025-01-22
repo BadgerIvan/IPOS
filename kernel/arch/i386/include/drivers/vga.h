@@ -1,5 +1,5 @@
 #ifndef _VGA_H
-#define _VGA_H 1
+#define _VGA_H
 
 #include <stdint.h>
 

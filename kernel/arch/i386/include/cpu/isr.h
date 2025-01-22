@@ -1,5 +1,5 @@
 #ifndef _ISR_H 
-#define _ISR_H 1
+#define _ISR_H
 
 #include <stdint.h>
 
@@ -126,6 +126,8 @@ extern void irq15();
 void isr_install();
 
 void isr_run();
+
+void isr_stop();
 
 void isr_handler(registers_t *r);
 
