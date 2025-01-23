@@ -112,6 +112,7 @@ void isr_install() {
 
     load_idt();
 
+    isr_run();
 }
 
 void isr_run() {

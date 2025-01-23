@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <arch/cpu/gdt.h>
 #include <arch/drivers/tty.h>
 #include <arch/cpu/idt.h>
 #include <arch/cpu/isr.h>
@@ -12,19 +13,21 @@
 
 void kernel_main(void) {
 
-	init_serial(SERIAL_COM1);
-
 	terminal_initialize();
+	init_serial(SERIAL_COM1);
 	debug("Terminal: successfully\n");
+	debug("Serial: successfully\n");
 
-	isr_install();
-	debug("ISR: successfully\n");
+	init_gdt();
+	debug("GDT: successfully\n");
 
-	init_keyboard();
-	
-	isr_run();
-	debug("ISR: run\n");
-	
-	isr0();
+	//NOT work
+	//isr_install();
+	//debug("IDT: successfully\n");
 
+	uint32_t i = 0;
+	while(1) {
+		printf("%d: tick\n", i);
+		i++;
+	}
 }
