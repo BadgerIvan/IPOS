@@ -32,11 +32,8 @@ void set_idt_gate(int n, uint32_t handler) {
     idt[n].high_offset = high_16(handler);
 }
 
-void load_idt_asm(uint16_t limit, uint32_t base);
-
 void load_idt() {
-    // idt_reg.base = (uint32_t) &idt;
-    // idt_reg.limit = IDT_ENTRIES * sizeof(idt_register_t) - 1;
-    // asm volatile("lidtl (%0)" : : "r" (&idt_reg));
-    load_idt_asm((uint32_t) &idt, 265 * 6 - 1);
+    idt_reg.base = (uint32_t) &idt;
+    idt_reg.limit = IDT_ENTRIES * sizeof(idt_register_t) - 1;
+    asm volatile("lidtl (%0)" : : "r" (&idt_reg));
 }

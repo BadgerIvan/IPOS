@@ -21,13 +21,12 @@ void kernel_main(void) {
 	init_gdt();
 	debug("GDT: successfully\n");
 
-	//NOT work
-	//isr_install();
-	//debug("IDT: successfully\n");
+	isr_install();
+	debug("IDT: successfully\n");
 
-	uint32_t i = 0;
+	init_keyboard();
+
 	while(1) {
-		printf("%d: tick\n", i);
-		i++;
+		asm volatile("hlt");
 	}
 }

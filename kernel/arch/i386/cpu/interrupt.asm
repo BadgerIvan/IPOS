@@ -1,21 +1,6 @@
 [extern isr_handler]
 [extern irq_handler]
 
-section .bss
-idtr  resw 1          
-      resd 1          
-
-section .text
-global load_idt_asm       
-
-load_idt_asm:
-    mov ax, [esp + 4]      
-    mov [idtr], ax         
-    mov eax, [esp + 8]     
-    mov [idtr + 2], eax    
-    lidt [idtr]            
-    ret
-
 isr_common_stub:
 	pusha
 	mov ax, ds 

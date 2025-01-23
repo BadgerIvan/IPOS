@@ -138,7 +138,7 @@ void irq_handler(registers_t *r) {
         handler(r);
     }
     else {
-        printf("Unhandled IRQ: %d\n", r->int_no);
+        //printf("Unhandled IRQ: %d\n", r->int_no);
     }
 
     if (r->int_no >= 40) {
