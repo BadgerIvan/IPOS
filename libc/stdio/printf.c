@@ -1,5 +1,4 @@
-//#include <limits.h>
-#include <stdbool.h>
+#include <stdint.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
@@ -57,19 +56,19 @@ int printf(const char* restrict format, ...) {
         case 'd' : 
             i = va_arg(arg,int);         
             if (i < 0) {
-                // if (i == INT_MIN) { 
-                //     putchar('-');
-                //     i = -(i + 1); 
-                //     temp = convert(i, 10);
-                //     puts(temp);
-                //     count += strlen(temp) + 1; 
-                // } else {
+                 if (i == INT32_MIN) { 
+                     putchar('-');
+                     i = -(i + 1); 
+                     temp = convert(i, 10);
+                     puts(temp);
+                     count += strlen(temp) + 1; 
+                 } else {
                     putchar('-');
                     i = -i;
                     temp = convert(i, 10);
                     puts(temp);
                     count += strlen(temp) + 1;
-                //}
+                }
             } else {
                 temp = convert(i, 10);
                 puts(temp);

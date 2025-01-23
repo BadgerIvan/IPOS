@@ -24,6 +24,8 @@ void kernel_main(void) {
 	isr_install();
 	debug("IDT: successfully\n");
 
+	init_timer(11931);
+
 	init_keyboard();
 
 	while(1) {

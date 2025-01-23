@@ -3,21 +3,21 @@
 #include <arch/drivers/io.h>
 
 int init_serial(uint16_t port) {
-    outb ( port + 1 , 0x00 ); 
-    outb ( port + 3 , 0x80 ); 
-    outb ( port + 0 , 0x03 ); 
-    outb ( port + 1 , 0x00 ); 
-    outb ( port + 3 , 0x03 ); 
-    outb ( port + 2 , 0xC7 ); 
-    outb ( port + 4 , 0x0B ); 
-    outb ( port + 4 , 0x1E ); 
-    outb ( port + 0 , 0xAE ); 
+    outb (port + 1 , 0x00); 
+    outb (port + 3 , 0x80); 
+    outb (port + 0 , 0x03); 
+    outb (port + 1 , 0x00); 
+    outb (port + 3 , 0x03); 
+    outb (port + 2 , 0xC7); 
+    outb (port + 4 , 0x0B); 
+    outb (port + 4 , 0x1E); 
+    outb (port + 0 , 0xAE); 
     
-    if ( inb ( port ) != 0xAE ) {        
+    if (inb (port) != 0xAE) {        
       return 0; 
     }
 
-    outb ( port + 4 , 0x0F );   
+    outb (port + 4 , 0x0F);   
       
    return 1;       
 }

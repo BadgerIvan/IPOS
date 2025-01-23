@@ -18,7 +18,7 @@ typedef struct
     uint32_t base;                
 } __attribute__((packed)) gdt_ptr_t;
 
-extern void load_gdt(gdt_ptr_t * gdt_ptr);
+extern void load_gdt(gdt_ptr_t *gdt_ptr);
 
 static void gdt_set_gate(int32_t,uint32_t,uint32_t,uint8_t,uint8_t);
 

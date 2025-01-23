@@ -8,7 +8,9 @@ static uint32_t tick = 0;
 
 static void timer_callback(registers_t *regs) {
     tick++;
-    printf("Tick: %d\n", tick);
+    if(tick == INT32_MAX) {
+        tick = 0;
+    }
 }
 
 void init_timer(uint32_t freq) {
