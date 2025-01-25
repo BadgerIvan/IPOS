@@ -2,6 +2,6 @@
 #define _PANIC_H
 
 __attribute__((__noreturn__))
-void kernel_panic();
+void panic(const char* text);
 
 #endif

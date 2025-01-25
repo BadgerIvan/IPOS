@@ -1,4 +1,3 @@
-#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
@@ -86,8 +85,8 @@ void terminal_putchar(int8_t ch) {
 	terminal_set_cursor(get_offset(terminal_column, terminal_row));
 }
 
-void terminal_write(const char* data, uint32_t size) {
-	for (uint32_t i = 0; i < size; i++)
+void terminal_write(FILE *stream, const char* data, size_t size) {
+	for (size_t i = 0; i < size; i++)
 		terminal_putchar(data[i]);
 }
 

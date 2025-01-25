@@ -3,4 +3,6 @@
 
 void debug(const char* str);
 
+void debugf(const char* format, ...);
+
 #endif

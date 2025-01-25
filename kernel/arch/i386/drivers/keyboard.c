@@ -7,7 +7,7 @@
 
 static void keyboard_callback(registers_t *regs) {
     uint8_t scancode = inb(0x60);
-    printf("%x\n", scancode);
+    //printf("%x\n", scancode);
 }
 
 void init_keyboard() {

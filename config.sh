@@ -16,7 +16,7 @@ export BOOTDIR=/boot
 export LIBDIR=$EXEC_PREFIX/lib
 export INCLUDEDIR=$PREFIX/include
 
-export CFLAGS='-O3 -D_DEBUG -m32 -g -Wall -Wextra'
+export CFLAGS='-O2 -D_DEBUG -m32 -g -Wall -Wextra'
 export CPPFLAGS=''
 export ASMFLAGS='-f elf'
 

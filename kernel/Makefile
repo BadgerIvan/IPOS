@@ -26,6 +26,7 @@ CPUDIR=$(ARCHDIR)/cpu
 DRIVERSDIR=$(ARCHDIR)/drivers
 
 KERNELDIR=kernel
+SYSCALLSDIR=syscalls
 DEBUGDIR=debug
 
 include $(BOOTLOADERDIR)/make.config
@@ -33,6 +34,7 @@ include $(KERNELDIR)/make.config
 include $(DRIVERSDIR)/make.config
 include $(CPUDIR)/make.config
 include $(DEBUGDIR)/make.config
+include $(SYSCALLSDIR)/make.config
 
 OBJS=\
 $(BOOTLOADERDIR)/crti.o \
@@ -44,6 +46,7 @@ $(KERNEL_OBJS) \
 $(DRIVERS_OBJS) \
 $(CPU_OBJS) \
 $(DEBUG_OBJS) \
+$(SYSCALLS_OBJS) \
 
 LINK_LIST=\
 $(LDFLAGS) \
@@ -51,12 +54,13 @@ $(BOOT_OBJS) \
 $(BOOTLOADERDIR)/crti.o \
 $(BOOTLOADERDIR)/crtbegin.o \
 $(DEBUG_OBJS) \
+$(SYSCALLS_OBJS) \
 $(KERNEL_OBJS) \
 $(DRIVERS_OBJS) \
 $(CPU_OBJS) \
-$(LIBS) \
 $(BOOTLOADERDIR)/crtend.o \
 $(BOOTLOADERDIR)/crtn.o \
+$(LIBS) \
 
 .PHONY: all clean install install-headers install-kernel
 .SUFFIXES: .o .c .S .asm

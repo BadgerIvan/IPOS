@@ -22,6 +22,9 @@ stack_top:
 _start:
 	movl $stack_top, %esp
 	
+	push %eax
+	push %ebx
+
 	call _init
 
 	call kernel_main

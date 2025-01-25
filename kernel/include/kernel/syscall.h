@@ -3,6 +3,6 @@
 
 #include <stddef.h>
 
-size_t write(const void *buffer, size_t size);
+void init_syscalls();
 
 #endif

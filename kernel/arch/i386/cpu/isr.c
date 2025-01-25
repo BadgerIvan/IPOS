@@ -8,6 +8,7 @@
 #include <debug/debug.h>
 #include <kernel/panic.h>
 
+//cpu int
 extern void isr0();
 extern void isr1();
 extern void isr2();
@@ -40,6 +41,7 @@ extern void isr28();
 extern void isr29();
 extern void isr30();
 extern void isr31();
+//
 extern void irq0();
 extern void irq1();
 extern void irq2();
@@ -56,6 +58,8 @@ extern void irq12();
 extern void irq13();
 extern void irq14();
 extern void irq15();
+//system int
+extern void irq16(); //write
 
 isr_t interrupt_handlers[256];
 
@@ -158,6 +162,7 @@ void isr_install() {
     set_idt_gate(45, (uint32_t)irq13);
     set_idt_gate(46, (uint32_t)irq14);
     set_idt_gate(47, (uint32_t)irq15);
+    set_idt_gate(48, (uint32_t)irq16);
 
     load_idt();
 
@@ -173,8 +178,8 @@ void isr_stop() {
 }
 
 void isr_handler(registers_t *r) {
-    printf("\n%s %d %s\n", "received interrupt: ", r->int_no, exception_messages[r->int_no]);
-    panic();
+    debugf("\n%s %d %s\n", "received interrupt: ", r->int_no, exception_messages[r->int_no]);
+    panic("isr");
 }
 
 void register_interrupt_handler(uint8_t n, isr_t handler) {

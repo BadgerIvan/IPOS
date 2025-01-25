@@ -2,7 +2,7 @@ DEFAULT_HOST!=../default-host.sh
 HOST?=DEFAULT_HOST
 HOSTARCH!=../target-triplet-to-arch.sh $(HOST)
 
-CFLAGS?=-O2 -g
+CFLAGS?=
 CPPFLAGS?=
 LDFLAGS?=
 LIBS?=
@@ -29,8 +29,12 @@ LIBK_CPPFLAGS:=$(LIBK_CPPFLAGS) $(KERNEL_ARCH_CPPFLAGS)
 
 FREEOBJS=\
 $(ARCH_FREEOBJS) \
+stdio/fvprintf.o \
+stdio/fprintf.o \
 stdio/printf.o \
-stdio/putchar.o \
+stdio/fputc.o \
+stdio/putc.o \
+stdio/fputs.o \
 stdio/puts.o \
 stdlib/abort.o \
 string/memcmp.o \

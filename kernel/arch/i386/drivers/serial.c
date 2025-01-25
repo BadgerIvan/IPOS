@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stdio.h>
 
 #include <arch/drivers/io.h>
 
@@ -27,15 +28,14 @@ void serial_write_char(char a, uint16_t port) {
    outb(port, a);
 }
 
-void serial_write_string(const char* str, uint16_t port) {
-    uint32_t i = 0;
-    while(str[i] != '\0') {
-        serial_write_char(str[i], port);
+void serial_write(FILE *stream, const char *buffer, size_t size) {
+    for(size_t i = 0; i < size; i++) {
+        serial_write_char(buffer[i], stream->id);
         i++;
     }
 }
 
-char serial_read(uint16_t port) {
-   while ((inb(port + 5) & 1) == 0);
-   return inb(port);
+char serial_read(FILE *stream, char *buffer, size_t size) {
+   while ((inb(stream->id + 5) & 1) == 0);
+   return inb(stream->id);
 }
