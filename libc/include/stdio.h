@@ -11,7 +11,7 @@
 extern "C" {
 #endif
 
-struct _FILE_s{
+struct FILE_s{
     int id;
     void *buffer;
     size_t size_buffer;
@@ -20,7 +20,7 @@ struct _FILE_s{
     int (*write)(struct FILE_s *stream, const void *buf, size_t size); 
     void (*flush)(struct FILE_s *stream); 
 };
-typedef struct _FILE_s FILE;
+typedef struct FILE_s FILE;
 
 static FILE *stdout;
 

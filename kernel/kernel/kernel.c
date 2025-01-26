@@ -39,6 +39,8 @@ void kernel_main(multiboot_info_t *mbd , uint32_t magic) {
 	init_keyboard();
     debug("Keyboard: successfully\n");
 
+	printf("hello^%d\n", 10);
+
 	while(1) {
 		asm volatile("hlt");
 	}

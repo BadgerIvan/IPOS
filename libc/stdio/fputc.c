@@ -6,7 +6,8 @@
 
 int fputc(int ch, FILE *stream) {
 #if defined(__is_libk)
-	int result = write(stream, (char)ch, 1);
+    char c = (char)ch;
+	int result = write(stream, &c, 1);
     if(result == -1) {
         return EOF;
     }
