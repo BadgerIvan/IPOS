@@ -7,7 +7,7 @@
 
 int fputs(const char* string, FILE *stream) {
 #if defined(__is_libk)
-    int result = write(stream, string, strlen(string));
+    int result = write(stream->id, string, strlen(string));
     if(result == -1) {
         return EOF;
     }

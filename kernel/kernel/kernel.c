@@ -14,7 +14,7 @@
 #include <kernel/syscall.h> 
 #include <kernel/read_write.h>
 
-void kernel_main(multiboot_info_t *mbd , uint32_t magic) {
+void kernel_main() {
 
 	terminal_initialize();
 	init_serial(SERIAL_COM1);
@@ -38,8 +38,6 @@ void kernel_main(multiboot_info_t *mbd , uint32_t magic) {
 
 	init_keyboard();
     debug("Keyboard: successfully\n");
-
-	printf("hello^%d\n", 10);
 
 	while(1) {
 		asm volatile("hlt");

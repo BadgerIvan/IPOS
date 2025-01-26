@@ -12,7 +12,7 @@ extern "C" {
 #endif
 
 struct FILE_s{
-    int id;
+    unsigned int id;
     void *buffer;
     size_t size_buffer;
     size_t position;  
@@ -22,7 +22,7 @@ struct FILE_s{
 };
 typedef struct FILE_s FILE;
 
-static FILE *stdout;
+extern FILE *stdout;
 
 int vfprintf(FILE *stream, const char *format, va_list args);
 
