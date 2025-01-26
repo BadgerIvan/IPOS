@@ -21,7 +21,7 @@ static char *convert(unsigned int num, int base)
     return(ptr); 
 }
 
-int fvprintf(FILE *stream, const char* format, va_list arg) {
+int vfprintf(FILE *stream, const char* format, va_list arg) {
 	char *traverse; 
     unsigned int i; 
     char *s; 
@@ -54,18 +54,14 @@ int fvprintf(FILE *stream, const char* format, va_list arg) {
             i = va_arg(arg,int);         
             if (i < 0) {
                  if (i == INT32_MIN) { 
-                     fputc('-', stream);
                      i = -(i + 1); 
-                     temp = convert(i, 10);
-                     fputs(temp, stream);
-                     count += strlen(temp) + 1; 
                  } else {
-                    fputc('-', stream);
                     i = -i;
-                    temp = convert(i, 10);
-                    fputs(temp, stream);
-                    count += strlen(temp) + 1;
                 }
+                temp = convert(i, 10);
+                fputc('-', stream);
+                fputs(temp, stream);
+                count += strlen(temp) + 1; 
             } else {
                 temp = convert(i, 10);
                 fputs(temp, stream);
