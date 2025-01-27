@@ -5,6 +5,8 @@
 
 #define MAX_STREAMS 1024
 
+int std_streams = 0;
+
 FILE *streams[MAX_STREAMS];
 
 FILE stdout_stream = {
@@ -17,25 +19,39 @@ FILE stdout_stream = {
     .flush = NULL
 };
 
+FILE stderr_stream = {
+    .id = 0,
+    .buffer = NULL,
+    .size_buffer = 0,
+    .position = 0,
+    .read = NULL,
+    .write = terminal_write,
+    .flush = NULL
+};
+
 void init_streams() {
     stdout = &stdout_stream;
     streams[0] = stdout;
+    std_streams++;
+
+    stderr = &stderr_stream;
+    streams[1] = stderr;
+    std_streams++;
 }
 
-int register_stream(FILE *stream) {
-    for (int i = 1; i < MAX_STREAMS; i++) {
-        if(streams[i] == NULL) {
-            stream->id = i;
-            streams[i] = stream;
-            return i;
-        }
-        if(streams[i]->id == 0) {
+int open_stream(FILE *stream) {
+    for (int i = std_streams; i < MAX_STREAMS; i++) {
+        if (streams[i] == NULL || streams[i]->id == 0) {
             stream->id = i;
             streams[i] = stream;
             return i;
         }
     }
     return -1; 
+}
+
+int close_stream(FILE *stream) {
+    streams[stream->id] = NULL;
 }
 
 int write(int stream_id, const char *buf, size_t size) {

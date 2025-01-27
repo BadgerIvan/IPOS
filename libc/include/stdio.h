@@ -23,6 +23,7 @@ struct FILE_s{
 typedef struct FILE_s FILE;
 
 extern FILE *stdout;
+extern FILE *stderr;
 
 int vfprintf(FILE *stream, const char *format, va_list args);
 

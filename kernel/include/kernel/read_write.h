@@ -2,7 +2,9 @@
 
 void init_streams();
 
-int register_stream(FILE *stream);
+int open_stream(FILE *stream);
+
+int close_stream(FILE *stream);
 
 int write(int stream_id, const char *buf, size_t size);
 

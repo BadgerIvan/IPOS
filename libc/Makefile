@@ -29,6 +29,19 @@ LIBK_CPPFLAGS:=$(LIBK_CPPFLAGS) $(KERNEL_ARCH_CPPFLAGS)
 
 FREEOBJS=\
 $(ARCH_FREEOBJS) \
+ctype/isalnum.o \
+ctype/isalpha.o \
+ctype/isblank.o \
+ctype/iscntrl.o \
+ctype/isdigit.o \
+ctype/isgraph.o \
+ctype/islower.o \
+ctype/isprint.o \
+ctype/ispunct.o \
+ctype/isspace.o \
+ctype/issupper.o \
+ctype/isxdigit.o \
+errno/errno.o \
 stdio/stdstreams.o \
 stdio/vfprintf.o \
 stdio/fprintf.o \
@@ -42,7 +55,7 @@ string/memcmp.o \
 string/memcpy.o \
 string/memmove.o \
 string/memset.o \
-string/strlen.o \
+string/strlen.o
 
 HOSTEDOBJS=\
 $(ARCH_HOSTEDOBJS) \

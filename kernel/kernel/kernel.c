@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
+#include <ctype.h>
 
 #include <multiboot.h>
 #include <arch/cpu/gdt.h>
@@ -17,11 +19,9 @@
 void kernel_main() {
 
 	terminal_initialize();
-	init_serial(SERIAL_COM1);
     init_streams();
 
 	debug("Terminal: successfully\n");
-	debug("Serial: successfully\n");
     debug("Read and write: successfully\n");
 
 	init_gdt();
@@ -38,6 +38,11 @@ void kernel_main() {
 
 	init_keyboard();
     debug("Keyboard: successfully\n");
+
+	#define NDEBUG
+	assert(isblank('\t'));
+	#undef NDEBUG
+	assert(isblank('t'));
 
 	while(1) {
 		asm volatile("hlt");
