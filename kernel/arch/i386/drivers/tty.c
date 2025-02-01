@@ -74,6 +74,27 @@ void terminal_putchar(int8_t ch) {
 	case '\n':
 		terminal_newline();
 		break;
+	case '\b':
+		if(terminal_row * VGA_WIDTH + terminal_column == 0) {
+			terminal_putentryat(' ', terminal_color, terminal_column, terminal_row);
+			break;
+		}
+		terminal_column--;
+		if(terminal_column == -1) { 
+			terminal_column = VGA_WIDTH - 1; 
+			terminal_row--;
+		}
+		terminal_putentryat(' ', terminal_color, terminal_column, terminal_row);
+		break;
+	case '\f':
+		terminal_clear(terminal_color);
+		terminal_set_cursor(0);
+		break;
+	case '\v':
+		int temp = terminal_column;
+		terminal_newline();
+		terminal_column = temp;
+		break;
 	default:
 		terminal_putentryat(uc, terminal_color, terminal_column, terminal_row);
 		if (++terminal_column == VGA_WIDTH) {

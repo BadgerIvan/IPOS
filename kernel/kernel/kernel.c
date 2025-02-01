@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
-#include <ctype.h>
 
 #include <multiboot.h>
 #include <arch/cpu/gdt.h>
@@ -15,14 +14,27 @@
 #include <kernel/panic.h>
 #include <kernel/syscall.h> 
 #include <kernel/read_write.h>
+#include <arch/memory/paging.h>
+#include <arch/memory/heap.h>
 
-void kernel_main() {
+extern uint32_t KERNEL_START; 
+extern uint32_t KERNEL_END;
+
+void kernel_main(multiboot_info_t *mbd , uint32_t magic) {
+
+    if(magic != MULTIBOOT_BOOTLOADER_MAGIC) {
+        return;
+    }
 
 	terminal_initialize();
     init_streams();
 
 	debug("Terminal: successfully\n");
     debug("Read and write: successfully\n");
+
+    debugf("Kernel starts at: 0x%x\n", (uint32_t)&KERNEL_START);
+    debugf("Kernel ends at: 0x%x\n", (uint32_t)&KERNEL_END);
+    debugf("Kernel size: %d bytes\n", (uint32_t)&KERNEL_END - (uint32_t)&KERNEL_START);
 
 	init_gdt();
 	debug("GDT: successfully\n");
@@ -38,11 +50,6 @@ void kernel_main() {
 
 	init_keyboard();
     debug("Keyboard: successfully\n");
-
-	#define NDEBUG
-	assert(isblank('\t'));
-	#undef NDEBUG
-	assert(isblank('t'));
 
 	while(1) {
 		asm volatile("hlt");

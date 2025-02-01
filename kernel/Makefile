@@ -13,7 +13,7 @@ EXEC_PREFIX?=$(PREFIX)
 BOOTDIR?=$(EXEC_PREFIX)/boot
 INCLUDEDIR?=$(PREFIX)/include
 
-CFLAGS:=$(CFLAGS) -ffreestanding -Wall -Wextra
+CFLAGS:=$(CFLAGS) -std=gnu11 -ffreestanding -fno-builtin -fno-stack-protector
 CPPFLAGS:=$(CPPFLAGS) -D__is_kernel -Iinclude
 ASMFLAGS:=$(ASMFLAGS)
 LDFLAGS:=$(LDFLAGS)
@@ -24,6 +24,7 @@ ARCHDIR=arch/$(HOSTARCH)
 BOOTLOADERDIR=$(ARCHDIR)/boot
 CPUDIR=$(ARCHDIR)/cpu
 DRIVERSDIR=$(ARCHDIR)/drivers
+MEMORYDIR=$(ARCHDIR)/memory
 
 KERNELDIR=kernel
 SYSCALLSDIR=syscalls
@@ -35,6 +36,7 @@ include $(DRIVERSDIR)/make.config
 include $(CPUDIR)/make.config
 include $(DEBUGDIR)/make.config
 include $(SYSCALLSDIR)/make.config
+include $(MEMORYDIR)/make.config
 
 OBJS=\
 $(BOOTLOADERDIR)/crti.o \
@@ -47,6 +49,7 @@ $(DRIVERS_OBJS) \
 $(CPU_OBJS) \
 $(DEBUG_OBJS) \
 $(SYSCALLS_OBJS) \
+$(MEMORY_OBJS) \
 
 LINK_LIST=\
 $(LDFLAGS) \
@@ -54,6 +57,7 @@ $(BOOT_OBJS) \
 $(BOOTLOADERDIR)/crti.o \
 $(BOOTLOADERDIR)/crtbegin.o \
 $(DEBUG_OBJS) \
+$(MEMORY_OBJS) \
 $(SYSCALLS_OBJS) \
 $(KERNEL_OBJS) \
 $(DRIVERS_OBJS) \
@@ -75,7 +79,7 @@ $(BOOTLOADERDIR)/crtbegin.o $(BOOTLOADERDIR)/crtend.o:
 	OBJ=`$(CC) $(CFLAGS) $(LDFLAGS) -print-file-name=$(@F)` && cp "$$OBJ" $@
 
 .c.o:
-	$(CC) -MD -c $< -o $@ -std=gnu11 $(CFLAGS) $(CPPFLAGS)
+	$(CC) -MD -c $< -o $@ $(CFLAGS) $(CPPFLAGS)
 
 .S.o:
 	$(CC) -MD -c $< -o $@ $(CFLAGS) $(CPPFLAGS)

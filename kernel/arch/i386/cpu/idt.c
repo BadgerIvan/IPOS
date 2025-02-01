@@ -8,7 +8,7 @@
 #define low_16(address) (uint32_t)((address) & 0xFFFF)
 #define high_16(address) (uint32_t)(((address) >> 16) & 0xFFFF)
 
-typedef struct {
+typedef struct idt_gate {
     uint16_t low_offset;
     uint16_t sel;
     uint8_t always0;
@@ -16,7 +16,7 @@ typedef struct {
     uint16_t high_offset;
 } __attribute__((packed)) idt_gate_t;
 
-typedef struct {
+typedef struct idt_register {
     uint16_t limit;
     uint32_t base;
 } __attribute__((packed)) idt_register_t;

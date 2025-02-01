@@ -1,4 +1,4 @@
 int iscntrl(int c) {
     char ch = (char)c;
-    return (c >= 0 && c <= 31) || (c == 127);
+    return (ch >= 0 && ch <= 31) || (ch == 127);
 }

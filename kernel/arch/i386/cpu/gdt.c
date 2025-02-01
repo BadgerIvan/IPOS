@@ -2,7 +2,7 @@
 
 #include <arch/cpu/gdt.h>
 
-typedef struct 
+typedef struct gdt_entry
 {
     uint16_t limit_low;          
     uint16_t base_low;            
@@ -12,7 +12,7 @@ typedef struct
     uint8_t  base_high;       
 } __attribute__((packed)) gdt_entry_t;
 
-typedef struct
+typedef struct gdt_ptr
 {
     uint16_t limit;              
     uint32_t base;                
@@ -30,6 +30,23 @@ void init_gdt()
 {
     gdt_ptr.limit = (sizeof(gdt_entry_t)*5) - 1;
     gdt_ptr.base = (uint32_t)&gdt_entries;
+
+    // if(!(mbd->flags >> 6 & 0x1)) {
+    //     panic("invalid memory map given by GRUB bootloader");
+    // }
+
+    // /* Loop through the memory map and display the values */
+    // int i;
+    // for(i = 0; i < mbd->mmap_length; i += sizeof(multiboot_memory_map_t)) 
+    // {
+    //     multiboot_memory_map_t* mmmt = 
+    //         (multiboot_memory_map_t*) (mbd->mmap_addr + i);
+
+    //     if(mmmt->type == MULTIBOOT_MEMORY_AVAILABLE) {
+    //        printf("Start Addr: %x | Length: %d | Size: %d | Type: %d\n",
+    //         mmmt->addr, (int)mmmt->len, mmmt->size, mmmt->type);
+    //     }
+    // }
 
     gdt_set_gate(0,0,0,0,0);                    //Null segment
     gdt_set_gate(1, 0, 0xFFFFFFFF, 0x9A, 0xCF); //Code segment

@@ -1,4 +1,5 @@
-#include <string.h>
+#include <stdarg.h>
+#include <stdio.h>
 
 #include <arch/drivers/tty.h>
 #include <arch/drivers/vga.h>
@@ -7,11 +8,10 @@
 #include <debug/debug.h>
 
 __attribute__((__noreturn__))
-void panic(const char* text) {
-    terminal_setcolor(vga_entry_color(VGA_COLOR_WHITE, VGA_COLOR_RED));
-    debugf("\nKernel panic\n%s", text);
+void panic(const char *text) {
     isr_stop();
+    debug("Kernel panic!\n");
+    debug(text);
     for(;;) { }
     __builtin_unreachable();
 }
-

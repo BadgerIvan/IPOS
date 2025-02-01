@@ -20,7 +20,7 @@ FILE stdout_stream = {
 };
 
 FILE stderr_stream = {
-    .id = 0,
+    .id = 1,
     .buffer = NULL,
     .size_buffer = 0,
     .position = 0,
@@ -54,13 +54,13 @@ int close_stream(FILE *stream) {
     streams[stream->id] = NULL;
 }
 
-int write(int stream_id, const char *buf, size_t size) {
+int write(int stream_id, const void *buf, size_t size) {
     if (stream_id < 0 || stream_id >= MAX_STREAMS || streams[stream_id] == NULL) 
         return -1;
     return streams[stream_id]->write(streams[stream_id], buf, size);
 }
 
-int read(int stream_id, char *buf, size_t size) {
+int read(int stream_id, void *buf, size_t size) {
     if (stream_id < 0 || stream_id >= MAX_STREAMS || streams[stream_id] == NULL) 
         return -1;
     return streams[stream_id]->read(streams[stream_id], buf, size);
