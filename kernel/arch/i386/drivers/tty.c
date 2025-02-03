@@ -63,8 +63,8 @@ void terminal_putentryat(uint8_t c, uint8_t color, uint32_t x, uint32_t y) {
 	terminal_buffer[index] = vga_entry(c, color);
 }
 
-void terminal_putchar(int8_t ch) {
-	uint8_t uc = (uint8_t)ch;
+void terminal_putchar(int8_t c) {
+	uint8_t uc = (uint8_t)c;
 
 	switch(uc) 
 	{

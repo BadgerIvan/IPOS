@@ -1,2 +1,2 @@
 #!/bin/bash
-qemu-system-i386 -m 4096 -cdrom ipos.iso
+qemu-system-i386 -m 16 -cdrom ipos.iso
