@@ -1,6 +1,13 @@
 #ifndef _GDT_H
 #define _GDT_H
 
-void init_gdt();
+#include <stdint.h>
+
+#include <multiboot.h>
+
+extern uint32_t KERNEL_START; 
+extern uint32_t KERNEL_END;
+
+void init_gdt(const multiboot_info_t *mbd);
 
 #endif

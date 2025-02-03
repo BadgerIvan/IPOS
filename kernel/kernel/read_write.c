@@ -50,7 +50,7 @@ int open_stream(FILE *stream) {
     return -1; 
 }
 
-int close_stream(FILE *stream) {
+void close_stream(const FILE *stream) {
     streams[stream->id] = NULL;
 }
 

@@ -25,7 +25,7 @@ typedef struct FILE_s FILE;
 extern FILE *stdout;
 extern FILE *stderr;
 
-int vfprintf(FILE *stream, const char *format, va_list args);
+int vfprintf(FILE *stream, const char *format, va_list arg);
 
 int fprintf(FILE *stream, const char *format, ...);
 int fputc(int ch, FILE *stream);
