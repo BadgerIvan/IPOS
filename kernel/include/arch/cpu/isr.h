@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 
+#define ISR14 14
 #define IRQ0 32
 #define IRQ1 33
 #define IRQ2 34

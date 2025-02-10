@@ -41,7 +41,7 @@ extern void isr28();
 extern void isr29();
 extern void isr30();
 extern void isr31();
-//
+//hardware int
 extern void irq0();
 extern void irq1();
 extern void irq2();

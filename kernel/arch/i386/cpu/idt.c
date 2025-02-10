@@ -2,7 +2,6 @@
 
 #include <arch/cpu/idt.h>
 
-#define IDT_ENTRIES 256
 #define KERNEL_CS 0x08
 
 #define low_16(address) (uint32_t)((address) & 0xFFFF)
@@ -21,7 +20,7 @@ typedef struct idt_register {
     uint32_t base;
 } __attribute__((packed)) idt_register_t;
 
-static idt_gate_t idt[IDT_ENTRIES];
+static idt_gate_t idt[256];
 static idt_register_t idt_reg;
 
 void set_idt_gate(int n, uint32_t handler) {
@@ -34,6 +33,6 @@ void set_idt_gate(int n, uint32_t handler) {
 
 void load_idt() {
     idt_reg.base = (uint32_t) &idt;
-    idt_reg.limit = IDT_ENTRIES * sizeof(idt_register_t) - 1;
+    idt_reg.limit = sizeof(idt_register_t) * 256 - 1;
     asm volatile("lidtl (%0)" : : "r" (&idt_reg));
 }

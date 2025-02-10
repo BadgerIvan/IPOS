@@ -8,6 +8,6 @@
 extern uint32_t KERNEL_START; 
 extern uint32_t KERNEL_END;
 
-void init_gdt(const multiboot_info_t *mbd);
+void init_gdt();
 
 #endif

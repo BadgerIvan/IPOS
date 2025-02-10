@@ -1,6 +1,7 @@
-#ifndef _KHEAP_H
-#define _KHEAP_H
+#ifndef _HEAP_H
+#define _HEAP_H
 
+#include <stddef.h>
 #include <stdint.h>
 
 uint32_t kmalloc_int(uint32_t sz, int align, uint32_t *phys);
