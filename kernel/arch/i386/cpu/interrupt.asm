@@ -149,7 +149,7 @@ isr13:
 
 isr14:
     push byte 14
-    jmp irq_common_stub
+    jmp isr_common_stub
 
 isr15:
     push byte 0

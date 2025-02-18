@@ -31,7 +31,6 @@ FREEOBJS=\
 $(ARCH_FREEOBJS) \
 ctype/isalnum.o \
 ctype/isalpha.o \
-ctype/isblank.o \
 ctype/iscntrl.o \
 ctype/isdigit.o \
 ctype/isgraph.o \
@@ -41,6 +40,8 @@ ctype/ispunct.o \
 ctype/isspace.o \
 ctype/issupper.o \
 ctype/isxdigit.o \
+ctype/tolower.o \
+ctype/toupper.o \
 errno/errno.o \
 stdio/stdstreams.o \
 stdio/vfprintf.o \
@@ -51,6 +52,7 @@ stdio/putc.o \
 stdio/fputs.o \
 stdio/puts.o \
 stdlib/abort.o \
+string/strcpy.o \
 string/memcmp.o \
 string/memcpy.o \
 string/memmove.o \

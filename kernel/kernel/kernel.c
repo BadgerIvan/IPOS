@@ -1,6 +1,5 @@
 #include <stdio.h>
-#include <string.h>
-#include <assert.h>
+#include <ctype.h>
 
 #include <multiboot.h>
 
@@ -19,11 +18,7 @@
 #include <kernel/syscall.h> 
 #include <kernel/read_write.h>
 
-void kernel_main(uint32_t magic) {
-
-    if(magic != MULTIBOOT_BOOTLOADER_MAGIC) {
-        return;
-    }
+void kernel_main(multiboot_info_t* mbd) {
 
 	terminal_initialize();
     init_streams();
@@ -46,14 +41,10 @@ void kernel_main(uint32_t magic) {
 	init_keyboard();
     debug("Keyboard: successfully\n");
 
-    printf("\n");
-
-    uint8_t *p = (uint8_t*)0xB8000;
-    for(int i = 0; i < 100; i++, p += 2) {
-        printf("%c", *p);
-    }
+	printf("%c %c %c %c %c", toupper('a'), toupper('b'), toupper('z'), toupper('A'), toupper('1'));
 
 	while(1) {
 		asm volatile("hlt");
 	}
+
 }

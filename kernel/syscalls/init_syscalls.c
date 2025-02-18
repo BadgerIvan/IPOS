@@ -2,8 +2,8 @@
 
 #include <arch/cpu/isr.h>
 
-//void write(registers_t *reg);
+void write_handler(registers_t *reg);
 
 void init_syscalls() {
-    //register_interrupt_handler(IRQ16, write);
+    register_interrupt_handler(IRQ16, write_handler);
 }

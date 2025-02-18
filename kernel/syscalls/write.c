@@ -1,8 +1,8 @@
 #include <stddef.h>
 
 #include <arch/cpu/isr.h>
-#include <arch/drivers/tty.h>
+#include <kernel/read_write.h>
 
-// void write(registers_t *r) {
-//     //terminal_write(r->eax, r->ebx);
-// }
+void write_handler(registers_t *r) {
+    write((int)r->eax, (const void*)r->ebx, (size_t)r->ecx);
+}
