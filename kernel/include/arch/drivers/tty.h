@@ -7,7 +7,7 @@
 
 #include <arch/drivers/vga.h>
 
-void terminal_initialize();
+void init_terminal();
 void terminal_clear(uint8_t color);
 void terminal_putchar(int8_t c);
 void terminal_write(FILE *stream, const char* data, uint32_t size);

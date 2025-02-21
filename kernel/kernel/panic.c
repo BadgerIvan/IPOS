@@ -10,7 +10,7 @@
 __attribute__((__noreturn__))
 void panic(const char *text) {
     isr_stop();
-    debug("Kernel panic!\n");
+    debug("Kernel panic! ");
     debug(text);
     for(;;) { }
     __builtin_unreachable();

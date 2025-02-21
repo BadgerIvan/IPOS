@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <assert.h>
 
 #include <arch/cpu/idt.h>
 
@@ -34,5 +35,8 @@ void set_idt_gate(int n, uint32_t handler) {
 void load_idt() {
     idt_reg.base = (uint32_t) &idt;
     idt_reg.limit = sizeof(idt_register_t) * 256 - 1;
+
+    assert(sizeof(idt_reg) == 6);
+
     asm volatile("lidtl (%0)" : : "r" (&idt_reg));
 }

@@ -3,8 +3,6 @@
 
 #include <stdint.h>
 
-#include <multiboot.h>
-
 extern uint32_t KERNEL_START; 
 extern uint32_t KERNEL_END;
 

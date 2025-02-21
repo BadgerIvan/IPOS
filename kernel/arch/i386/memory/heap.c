@@ -1,3 +1,6 @@
+#include <stdint.h>
+#include <assert.h>
+
 #include <arch/memory/heap.h>
 
 extern uint32_t KERNEL_END;

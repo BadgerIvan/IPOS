@@ -31,7 +31,7 @@ typedef struct {
 
 typedef void (*isr_t)(registers_t *);
 
-void isr_install();
+void init_isr();
 
 void isr_run();
 

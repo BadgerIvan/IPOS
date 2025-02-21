@@ -6,7 +6,7 @@ export HOST=${HOST:-$(./default-host.sh)}
 
 export AR=${HOST}-ar
 export AS=${HOST}-as
-export CC=gcc
+export CC=${HOST}-gcc
 export ASM=nasm
 export CPP=g++
 
@@ -16,7 +16,7 @@ export BOOTDIR=/boot
 export LIBDIR=$EXEC_PREFIX/lib
 export INCLUDEDIR=$PREFIX/include
 
-export CFLAGS='-O0 -D_DEBUG -m32 -g3 -Wall -Wextra'
+export CFLAGS='-O0 -D_DEBUG -g3 -Wall -Wextra'
 export CPPFLAGS=''
 export ASMFLAGS='-f elf'
 

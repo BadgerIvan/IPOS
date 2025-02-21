@@ -101,7 +101,7 @@ char *exception_messages[] = {
         "Reserved"
 };
 
-void isr_install() {
+void init_isr() {
     set_idt_gate(0, (uint32_t) isr0);
     set_idt_gate(1, (uint32_t) isr1);
     set_idt_gate(2, (uint32_t) isr2);
@@ -192,7 +192,7 @@ void irq_handler(registers_t *r) {
         handler(r);
     }
     else {
-        printf("Unhandled IRQ: %d\n", r->int_no);
+        debugf("Unhandled IRQ: %d\n", r->int_no);
     }
 
     if (r->int_no >= 40) {

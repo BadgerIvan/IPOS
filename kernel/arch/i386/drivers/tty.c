@@ -24,7 +24,7 @@ static uint32_t get_offset(uint32_t column, uint32_t row) {
     return 2 * (row * VGA_WIDTH + column);
 }
 
-void terminal_initialize(void) {
+void init_terminal(void) {
 	terminal_row = 0;
 	terminal_column = 0;
 	terminal_color = vga_entry_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
@@ -35,7 +35,7 @@ void terminal_initialize(void) {
 void terminal_clear(uint8_t color) {
 	for (uint32_t y = 0; y < VGA_HEIGHT; y++) {
 		for (uint32_t x = 0; x < VGA_WIDTH; x++) {
-			terminal_putentryat(' ', color, x, y);
+			terminal_putentryat('\0', color, x, y);
 		}
 	}
 	terminal_column = 0;
@@ -49,8 +49,8 @@ void terminal_setcolor(uint8_t color) {
 void terminal_newline() {
 	if(++terminal_row == VGA_HEIGHT) {
 		memmove(VGA_MEMORY, VGA_MEMORY + VGA_WIDTH, VGA_HEIGHT * (VGA_WIDTH - 1) * sizeof(uint16_t));
-		uint16_t entry = vga_entry(' ', terminal_color);;
-		for(uint32_t *i = VGA_MEMORY + (VGA_HEIGHT * (VGA_WIDTH - 1)); i < VGA_MEMORY + (VGA_HEIGHT * VGA_WIDTH); i++) {
+		uint16_t entry = vga_entry('\0', terminal_color);
+		for(uint16_t *i = VGA_MEMORY + (VGA_HEIGHT * (VGA_WIDTH - 1)); i < VGA_MEMORY + (VGA_HEIGHT * VGA_WIDTH); i++) {
 			*(i) = entry;
 		}
 		terminal_row = VGA_HEIGHT - 1;
@@ -66,6 +66,7 @@ void terminal_putentryat(uint8_t c, uint8_t color, uint32_t x, uint32_t y) {
 void terminal_putchar(int8_t c) {
 	uint8_t uc = (uint8_t)c;
 
+	int temp;
 	switch(uc) 
 	{
 	case '\r':
@@ -76,7 +77,7 @@ void terminal_putchar(int8_t c) {
 		break;
 	case '\b':
 		if(terminal_row * VGA_WIDTH + terminal_column == 0) {
-			terminal_putentryat(' ', terminal_color, terminal_column, terminal_row);
+			terminal_putentryat('\0', terminal_color, terminal_column, terminal_row);
 			break;
 		}
 		terminal_column--;
@@ -84,14 +85,14 @@ void terminal_putchar(int8_t c) {
 			terminal_column = VGA_WIDTH - 1; 
 			terminal_row--;
 		}
-		terminal_putentryat(' ', terminal_color, terminal_column, terminal_row);
+		terminal_putentryat('\0', terminal_color, terminal_column, terminal_row);
 		break;
 	case '\f':
 		terminal_clear(terminal_color);
 		terminal_set_cursor(0);
 		break;
 	case '\v':
-		int temp = terminal_column;
+		temp = terminal_column;
 		terminal_newline();
 		terminal_column = temp;
 		break;

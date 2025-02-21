@@ -3,6 +3,10 @@
 
 #include <multiboot.h>
 
+#include <kernel/panic.h>
+#include <kernel/syscall.h> 
+#include <kernel/read_write.h>
+
 #include <arch/cpu/gdt.h>
 #include <arch/drivers/tty.h>
 #include <arch/cpu/idt.h>
@@ -14,14 +18,10 @@
 
 #include <debug/debug.h>
 
-#include <kernel/panic.h>
-#include <kernel/syscall.h> 
-#include <kernel/read_write.h>
-
 void kernel_main(multiboot_info_t* mbd) {
 
-	terminal_initialize();
-    init_streams();
+	init_terminal();
+    init_streams(); 
 
 	debug("Terminal: successfully\n");
     debug("Read and write: successfully\n");
@@ -29,7 +29,7 @@ void kernel_main(multiboot_info_t* mbd) {
     init_gdt();
     debug("GDT: successfully\n");
     
-	isr_install();
+	init_isr();
 	debug("IDT: successfully\n");
 
     init_syscalls();
@@ -40,8 +40,6 @@ void kernel_main(multiboot_info_t* mbd) {
 
 	init_keyboard();
     debug("Keyboard: successfully\n");
-
-	printf("%c %c %c %c %c", toupper('a'), toupper('b'), toupper('z'), toupper('A'), toupper('1'));
 
 	while(1) {
 		asm volatile("hlt");

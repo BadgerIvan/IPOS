@@ -1,7 +1,7 @@
-KALIGN equ (1 << 0)
-MEMINFO equ (1 << 1)
-MAGIC equ 1BADB002h 
-FLAGS equ (KALIGN | MEMINFO)
+KALIGN equ 1 << 0
+MEMINFO equ 1 << 1
+MAGIC equ 0x1BADB002
+FLAGS equ KALIGN | MEMINFO
 CHECKSUM equ -(MAGIC + FLAGS)
 
 [bits 32]
@@ -16,17 +16,22 @@ section .bss
 align 16
 stack_bottom:
 resb 16384  ; 16 KiB
-stack_top:
+stack_top equ stack_bottom + 16384
 
 section .text
 
-global start
+global _start
 [extern _init]
 [extern kernel_main]
 
-start:
+_start:
+    cli
+
     mov esp, stack_top
 
+    cmp eax, 0x2BADB002
+    jnz .end
+     
     push ebx
 
     call _init

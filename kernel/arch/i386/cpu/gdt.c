@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <assert.h>
 
 #include <arch/cpu/gdt.h>
 
@@ -46,6 +47,8 @@ void init_gdt()
     gdt_set_gate(2, 0x0, 0xFFFFFFFF, 0x92, 0xCF); //Data segment
     gdt_set_gate(3, 0x0, 0xFFFFFFFF, 0xFA, 0xCF); //User mode code segment
     gdt_set_gate(4, 0x0, 0xFFFFFFFF, 0xF2, 0xCF); //User mode data segment
+
+    assert(sizeof(gdt_ptr) == 6);
 
     load_gdt(&gdt_ptr);
 }
