@@ -4,6 +4,7 @@
 #include <arch/drivers/io.h>
 
 int init_serial(uint16_t port) {
+    int flag = 1;
     outb (port + 1 , 0x00); 
     outb (port + 3 , 0x80); 
     outb (port + 0 , 0x03); 
@@ -15,12 +16,13 @@ int init_serial(uint16_t port) {
     outb (port + 0 , 0xAE); 
     
     if (inb (port) != 0xAE) {        
-      return 0; 
+        flag = 0; 
     }
 
-    outb (port + 4 , 0x0F);   
-      
-   return 1;       
+    if(flag)
+        outb (port + 4 , 0x0F);   
+    
+    return flag;
 }
 
 void serial_write_char(char a, uint16_t port) {

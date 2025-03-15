@@ -34,7 +34,7 @@ void kernel_main(multiboot_info_t* mbd) {
 
     init_syscalls();
     debug("Syscalls: successfully\n");
-
+	
 	init_timer(11931);
     debug("Timer: successfully\n");
 

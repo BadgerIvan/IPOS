@@ -1,8 +1,12 @@
 #ifndef _DEBUG_H
 #define _DEBUG_H
 
-void debug(const char* str);
-
-void debugf(const char* format, ...);
+#ifdef NDEBUG
+#define debug(str) ((void)0)
+#define debugf(...) ((void)0)
+#else 
+#define debug(str) fputs(str, stderr)
+#define debugf(...) fprintf(stderr, __VA_ARGS__)
+#endif
 
 #endif
