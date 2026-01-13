@@ -25,19 +25,19 @@ int init_serial(uint16_t port) {
     return flag;
 }
 
-void serial_write_char(char a, uint16_t port) {
+void serial_write_char(uint16_t port, char a) {
    while ((inb(port + 5) & 0x20) == 0);
    outb(port, a);
 }
 
-void serial_write(FILE *stream, const char *buffer, size_t size) {
+void serial_write(uint16_t port, const char *buffer, size_t size) {
     for(size_t i = 0; i < size; i++) {
-        serial_write_char(buffer[i], stream->id);
+        serial_write_char(buffer[i], port);
         i++;
     }
 }
 
-char serial_read(FILE *stream, char *buffer, size_t size) {
-   while ((inb(stream->id + 5) & 1) == 0);
-   return inb(stream->id);
+char serial_read(uint16_t port, char *buffer, size_t size) {
+   while ((inb(port + 5) & 1) == 0);
+   return inb(port);
 }

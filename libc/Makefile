@@ -14,7 +14,7 @@ INCLUDEDIR?=$(PREFIX)/include
 LIBDIR?=$(EXEC_PREFIX)/lib
 
 CFLAGS:=$(CFLAGS) -std=gnu11 -ffreestanding -fno-builtin -fno-stack-protector
-CPPFLAGS:=$(CPPFLAGS) -D__is_libc -Iinclude
+CPPFLAGS:=$(CPPFLAGS) -D__is_libk -Iinclude
 LIBK_CFLAGS:=$(CFLAGS) 
 LIBK_CPPFLAGS:=$(CPPFLAGS) -D__is_libk
 
@@ -57,7 +57,8 @@ string/memcmp.o \
 string/memcpy.o \
 string/memmove.o \
 string/memset.o \
-string/strlen.o
+string/strlen.o \
+string/strncpy.o
 
 HOSTEDOBJS=\
 $(ARCH_HOSTEDOBJS) \

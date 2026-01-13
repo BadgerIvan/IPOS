@@ -5,5 +5,6 @@
 void write_handler(registers_t *reg);
 
 void init_syscalls() {
-    register_interrupt_handler(IRQ16, write_handler);
+    //нужно сделать единый обработчик систменых вызовов на одном прерывании
+    //register_interrupt_handler(IRQ16, write_handler);
 }

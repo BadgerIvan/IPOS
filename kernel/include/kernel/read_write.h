@@ -5,9 +5,9 @@
 
 void init_streams();
 
-int open_stream(FILE *stream);
+int open_stream(int stream_id);
 
-void close_stream(FILE *stream);
+void close_stream(int stream_id);
 
 int write(int stream_id, const void *buf, size_t size);
 

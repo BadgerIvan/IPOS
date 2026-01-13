@@ -8,8 +8,8 @@
 
 int init_serial(uint16_t port);
 
-void serial_write(const FILE *stream, const char *buffer, size_t size);
+void serial_write(uint16_t port, const char *buffer, size_t size);
 
-char serial_read(FILE *stream, char *buffer, size_t size);
+char serial_read(uint16_t port, char *buffer, size_t size);
 
 #endif

@@ -10,8 +10,9 @@
 void init_terminal();
 void terminal_clear(uint8_t color);
 void terminal_putchar(int8_t c);
-void terminal_write(FILE *stream, const char* data, uint32_t size);
+void terminal_write(const char* data, uint32_t size);
 void terminal_setcolor(uint8_t color);
+void terminal_putentryat(uint8_t c, uint8_t color, uint32_t x, uint32_t y);
 void terminal_set_cursor(uint32_t pos);
 uint32_t terminal_get_cursor();
 

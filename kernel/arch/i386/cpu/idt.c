@@ -36,7 +36,5 @@ void load_idt() {
     idt_reg.base = (uint32_t) &idt;
     idt_reg.limit = sizeof(idt_register_t) * 256 - 1;
 
-    assert(sizeof(idt_reg) == 6);
-
     asm volatile("lidtl (%0)" : : "r" (&idt_reg));
 }

@@ -107,7 +107,7 @@ void terminal_putchar(int8_t c) {
 	terminal_set_cursor(get_offset(terminal_column, terminal_row));
 }
 
-void terminal_write(FILE *stream, const char* data, size_t size) {
+void terminal_write(const char* data, size_t size) {
 	for (size_t i = 0; i < size; i++)
 		terminal_putchar(data[i]);
 }
