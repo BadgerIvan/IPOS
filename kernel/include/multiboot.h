@@ -229,10 +229,8 @@ struct multiboot_color
 
 struct multiboot_mmap_entry{ 
     multiboot_uint32_t size;
-    multiboot_uint32_t base_addr_low;
-    multiboot_uint32_t base_addr_high;
-    multiboot_uint32_t length_low;
-    multiboot_uint32_t length_high;
+    multiboot_uint64_t addr;
+    multiboot_uint64_t length;
 #define MULTIBOOT_MEMORY_AVAILABLE              1
 #define MULTIBOOT_MEMORY_RESERVED               2
 #define MULTIBOOT_MEMORY_ACPI_RECLAIMABLE       3

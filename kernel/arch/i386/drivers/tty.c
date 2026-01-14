@@ -32,6 +32,10 @@ void init_terminal(void) {
 	terminal_clear(terminal_color);
 }
 
+void terminal_putentryat(uint8_t c, uint8_t color, uint32_t x, uint32_t y) {
+	terminal_buffer[y * VGA_WIDTH + x] = vga_entry(c, color);
+}
+
 void terminal_clear(uint8_t color) {
 	for (uint32_t y = 0; y < VGA_HEIGHT; y++) {
 		for (uint32_t x = 0; x < VGA_WIDTH; x++) {
@@ -56,11 +60,6 @@ void terminal_newline() {
 		terminal_row = VGA_HEIGHT - 1;
 	}
 	terminal_column = 0;
-}
-
-void terminal_putentryat(uint8_t c, uint8_t color, uint32_t x, uint32_t y) {
-	const uint32_t index = y * VGA_WIDTH + x;
-	terminal_buffer[index] = vga_entry(c, color);
 }
 
 void terminal_putchar(int8_t c) {

@@ -17,7 +17,7 @@ int printk(const char* format, ...);
 #include <kernel/panic.h>
 #define CALCULATING_EXP(exp) (exp)
 #define assertk(exp) if(!CALCULATING_EXP(exp)) \
-        {printk("ASSERT FAILED: (%s), file: %s, line: %d", #exp, __FILE__, __LINE__); \
+        {printk("ASSERT FAILED: (%s), file: %s, line: %d\n", #exp, __FILE__, __LINE__); \
         panic("assert failed");}
 #endif
 

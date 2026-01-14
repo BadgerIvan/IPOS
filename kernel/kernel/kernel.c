@@ -10,6 +10,7 @@
 #include <arch/cpu/idt.h>
 #include <arch/cpu/isr.h>
 #include <arch/memory/paging.h>
+#include <arch/memory/frames.h>
 #include <arch/drivers/keyboard.h>
 #include <arch/drivers/timer.h>
 #include <arch/drivers/serial.h>
@@ -19,7 +20,6 @@
 void kernel_main(multiboot_info_t* mbd) {
 
 	init_terminal();
-
 	debug("Terminal: successfully\n");
 
     init_gdt();
@@ -30,6 +30,10 @@ void kernel_main(multiboot_info_t* mbd) {
 
 	init_paging();
 	debug("FIRST 4MB PAGING: successfully\n");
+
+	init_frames();
+	mark_with_mmap(mbd);
+	debug("FRAMES: successfully\n");
 	
 	init_timer(11931);
     debug("Timer: successfully\n");
