@@ -1,6 +1,4 @@
 #include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 #include <arch/drivers/io.h>
 #include <arch/cpu/idt.h>
@@ -8,7 +6,6 @@
 #include <debug/debug.h>
 #include <kernel/panic.h>
 
-//cpu int
 extern void isr0();
 extern void isr1();
 extern void isr2();
@@ -58,8 +55,7 @@ extern void irq12();
 extern void irq13();
 extern void irq14();
 extern void irq15();
-//system int
-extern void irq16(); //write
+extern void irq16();
 
 isr_t interrupt_handlers[256];
 

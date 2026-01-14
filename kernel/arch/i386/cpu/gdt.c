@@ -1,10 +1,9 @@
 #include <stdint.h>
-#include <assert.h>
 
 #include <arch/cpu/gdt.h>
+#include <debug/debug.h>
 
-typedef struct gdt_entry
-{
+typedef struct {
     uint16_t limit_low;          
     uint16_t base_low;            
     uint8_t  base_middle;         
@@ -13,8 +12,7 @@ typedef struct gdt_entry
     uint8_t  base_high;       
 } __attribute__((packed)) gdt_entry_t;
 
-typedef struct gdt_ptr
-{
+typedef struct {
     uint16_t limit;              
     uint32_t base;                
 } __attribute__((packed)) gdt_ptr_t;
@@ -39,6 +37,9 @@ static void gdt_set_gate(int32_t entry, uint32_t base, uint32_t limit, uint8_t a
 
 void init_gdt()
 {
+    assertk(sizeof(gdt_entry_t) == 8);
+    assertk(sizeof(gdt_ptr_t) == 6);
+
     gdt_ptr.limit = (sizeof(gdt_entry_t)*5) - 1;
     gdt_ptr.base = (uint32_t)&gdt_entries;
 

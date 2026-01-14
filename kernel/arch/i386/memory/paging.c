@@ -2,6 +2,7 @@
 #include <string.h>
 #include <arch/memory/paging.h>
 #include <kernel/panic.h>
+#include <debug/debug.h>
 
 typedef struct {
     uint32_t preset : 1;
@@ -46,6 +47,9 @@ void test_paging() {
 }
 
 void init_paging() {
+    assertk(sizeof(page_dir_t) == 4);
+    assertk(sizeof(page_table_t) == 4);
+    
     memset(&page_dir, 0, sizeof(page_dir_t) * 1024);
     memset(&first_page_table, 0, sizeof(page_table_t) * 1024);
     for(int i = 0; i < 1024; i++) {

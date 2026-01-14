@@ -1,14 +1,14 @@
 #include <stdint.h>
-#include <assert.h>
 
 #include <arch/cpu/idt.h>
+#include <debug/debug.h>
 
 #define KERNEL_CS 0x08
 
-#define low_16(address) (uint32_t)((address) & 0xFFFF)
-#define high_16(address) (uint32_t)(((address) >> 16) & 0xFFFF)
+#define low_word(address) (uint32_t)((address) & 0xFFFF)
+#define high_word(address) (uint32_t)(((address) >> 16) & 0xFFFF)
 
-typedef struct idt_gate {
+typedef struct {
     uint16_t low_offset;
     uint16_t sel;
     uint8_t always0;
@@ -16,7 +16,7 @@ typedef struct idt_gate {
     uint16_t high_offset;
 } __attribute__((packed)) idt_gate_t;
 
-typedef struct idt_register {
+typedef struct {
     uint16_t limit;
     uint32_t base;
 } __attribute__((packed)) idt_register_t;
@@ -25,14 +25,17 @@ static idt_gate_t idt[256];
 static idt_register_t idt_reg;
 
 void set_idt_gate(int n, uint32_t handler) {
-    idt[n].low_offset = low_16(handler);
+    idt[n].low_offset = low_word(handler);
     idt[n].sel = KERNEL_CS;
     idt[n].always0 = 0;
     idt[n].flags = 0x8E;
-    idt[n].high_offset = high_16(handler);
+    idt[n].high_offset = high_word(handler);
 }
 
 void load_idt() {
+    assertk(sizeof(idt_gate_t) == 8);
+    assertk(sizeof(idt_register_t) == 6);
+
     idt_reg.base = (uint32_t) &idt;
     idt_reg.limit = sizeof(idt_register_t) * 256 - 1;
 
