@@ -28,15 +28,18 @@ void kernel_main(multiboot_info_t* mbd) {
 	init_isr();
 	debug("IDT: successfully\n");
 
+	init_timer(11931);
+    debug("Timer: successfully\n");
+
 	init_paging();
 	debug("FIRST 4MB PAGING: successfully\n");
 
-	init_frames();
-	mark_with_mmap(mbd);
+	init_frames(mbd);
 	debug("FRAMES: successfully\n");
 	
-	init_timer(11931);
-    debug("Timer: successfully\n");
+	uint32_t addr = alloc_frame();
+	debugf("0x%08X\n", addr);
+	free_frame(addr);
 
 	init_keyboard();
     debug("Keyboard: successfully\n");

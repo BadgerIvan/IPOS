@@ -133,18 +133,18 @@ static void resolve_conflicts_flags(flags_t *flags) {
   if (flags->sign) flags->space = 0;
 }
 
-static char *parse_width(const char *format, va_list args, size_t *result) {
+static char *parse_width(const char *format, va_list* args, size_t *result) {
   char *buffer = (char *)format;
   if (isdigit(*buffer))
     buffer = parse_size_t_from_str(buffer, result);
   else if (*buffer == '*') {
-    *result = (size_t)va_arg(args, size_t);
+    *result = (size_t)va_arg(*args, size_t);
     buffer++;
   }
   return buffer;
 }
 
-static char *parse_precision(const char *format, va_list args, size_t *result,
+static char *parse_precision(const char *format, va_list* args, size_t *result,
                              int *result_set) {
   if (*format != '.') return (char *)format;
   char *buffer = (char *)format;
@@ -152,7 +152,7 @@ static char *parse_precision(const char *format, va_list args, size_t *result,
   if (isdigit(*buffer)) {
     buffer = parse_size_t_from_str(buffer, result);
   } else if (*buffer == '*') {
-    *result = (size_t)va_arg(args, size_t);
+    *result = (size_t)va_arg(*args, size_t);
     buffer++;
   }
   *result_set = 1;
@@ -171,7 +171,7 @@ static char *parse_type(const char *format, char *result) {
   return ++buffer;
 }
 
-static char *parse_all_in_flag(const char *format, va_list args, fmt_t *fmt) {
+static char *parse_all_in_flag(const char *format, va_list* args, fmt_t *fmt) {
   char *buffer = (char *)format;
   buffer = parse_flags(buffer, &fmt->flags);
   resolve_conflicts_flags(&fmt->flags);
@@ -186,7 +186,7 @@ static int format_char_with_width_and_left_alignment(char ch, size_t width) {
   int offset = 0;
   terminal_putchar(ch);
   offset++;
-  for(int i = 0; i < width; i++)
+  for(size_t i = 0; i < width; i++)
     terminal_putchar(' ');
   offset += width - 1;
   return offset;
@@ -194,7 +194,7 @@ static int format_char_with_width_and_left_alignment(char ch, size_t width) {
 
 static int format_char_with_width(char ch, size_t width) {
   int offset = 0;
-  for(int i = 0; i < width; i++)
+  for(size_t i = 0; i < width; i++)
     terminal_putchar(' ');
   offset += width - 1;
   terminal_putchar(ch);
@@ -207,8 +207,8 @@ static int format_char(char ch) {
   return 1;
 }
 
-static void process_char(va_list args, fmt_t *fmt, size_t *len) {
-  char ch = (char)va_arg(args, int);
+static void process_char(va_list* args, fmt_t *fmt, size_t *len) {
+  char ch = (char)va_arg(*args, int);
   if (fmt->width && fmt->flags.left_alignment) {
     *len += format_char_with_width_and_left_alignment(ch, fmt->width);
   } else if (fmt->width) {
@@ -242,7 +242,7 @@ static size_t format_string_with_left_alignment(const char *string, size_t strin
   terminal_write(string, string_len);
   offset += string_len;
   if (padding) {
-    for(int i = 0; i < padding; i++)
+    for(size_t i = 0; i < padding; i++)
       terminal_putchar(' ');
     offset += padding;
   }
@@ -252,7 +252,7 @@ static size_t format_string_with_left_alignment(const char *string, size_t strin
 static size_t format_string(const char *string, size_t string_len, size_t padding) {
   size_t offset = 0;
   if (padding) {
-    for(int i = 0; i < padding; i++)
+    for(size_t i = 0; i < padding; i++)
       terminal_putchar(' ');
     offset += padding;
   }
@@ -261,8 +261,8 @@ static size_t format_string(const char *string, size_t string_len, size_t paddin
   return offset;
 }
 
-static void process_string(va_list args, fmt_t *fmt, size_t *len) {
-  char *string = (char *)va_arg(args, char *);
+static void process_string(va_list* args, fmt_t *fmt, size_t *len) {
+  char *string = (char *)va_arg(*args, char *);
   string = get_processed_string(string, fmt);
   size_t string_len = calculate_string_len(string, fmt);
   size_t padding = calculate_padding(fmt, string_len);
@@ -308,13 +308,13 @@ static size_t format_integer_with_left_alignment(const char *num_string, char si
   size_t offset = 0;
   if (sign) terminal_putchar(sign);
   if (num_zeros) {
-    for(int i = 0; i < num_zeros; i++) terminal_putchar('0');
+    for(size_t i = 0; i < num_zeros; i++) terminal_putchar('0');
     offset += num_zeros;
   }
   terminal_write(num_string, num_string_len);
   offset += num_string_len;
   if (padding) {
-    for(int i = 0; i < padding; i++) terminal_putchar(' ');
+    for(size_t i = 0; i < padding; i++) terminal_putchar(' ');
     offset += padding;
   }
   return offset;
@@ -324,16 +324,16 @@ static size_t format_integer_without_left_alignment(const char *num_string, char
                                                     size_t num_zeros, size_t padding, char fill) {
   size_t offset = 0;
   if (fill == ' ') {
-    for(int i = 0; i < padding; i++) terminal_putchar(fill);
+    for(size_t i = 0; i < padding; i++) terminal_putchar(fill);
     offset += padding;
   }
   if (sign) terminal_putchar(sign);
   if (fill == '0') {
-    for(int i = 0; i < padding; i++) terminal_putchar(fill);
+    for(size_t i = 0; i < padding; i++) terminal_putchar(fill);
     offset += padding;
   }
   if (num_zeros) {
-    for(int i = 0; i < num_zeros; i++) terminal_putchar('0');
+    for(size_t i = 0; i < num_zeros; i++) terminal_putchar('0');
     offset += num_zeros;
   }
   terminal_write(num_string, num_string_len);
@@ -359,14 +359,14 @@ static void format_integer(char *num_string, size_t num, int is_negative, fmt_t 
     *len += format_integer_without_left_alignment(num_string, sign, len_buffer, num_zeros, padding, fill);
 }
 
-static void process_int(va_list args, fmt_t *fmt, size_t *len) {
+static void process_int(va_list* args, fmt_t *fmt, size_t *len) {
   long int num = 0;
   if (fmt->length == 'h')
-    num = (long int)((short int)va_arg(args, int));
+    num = (long int)((short int)va_arg(*args, int));
   else if (fmt->length == 'l')
-    num = va_arg(args, long);
+    num = va_arg(*args, long);
   else
-    num = (long int)va_arg(args, int);
+    num = (long int)va_arg(*args, int);
   int is_negative = 0;
   if (num < 0) {
     num = -num;
@@ -390,14 +390,14 @@ static char *make_prefix_for_base(char *buffer, int base, fmt_t *fmt) {
   return buffer + len;
 }
 
-static void process_unsigned_integer(int base, int upper, va_list args, fmt_t *fmt, size_t *len) {
+static void process_unsigned_integer(int base, int upper, va_list* args, fmt_t *fmt, size_t *len) {
   unsigned long int num = 0;
   if (fmt->length == 'h')
-    num = (unsigned long int)((unsigned short int)va_arg(args, unsigned int));
+    num = (unsigned long int)((unsigned short int)va_arg(*args, unsigned int));
   else if (fmt->length == 'l')
-    num = va_arg(args, unsigned long int);
+    num = va_arg(*args, unsigned long int);
   else
-    num = (unsigned long int)va_arg(args, unsigned int);
+    num = (unsigned long int)va_arg(*args, unsigned int);
   char num_string[MAX_NUM_STR_LEN];
   char *num_string_with_prefix = make_prefix_for_base(num_string, base, fmt);
   size_t_to_string_with_base(num_string_with_prefix, num, base);
@@ -405,18 +405,18 @@ static void process_unsigned_integer(int base, int upper, va_list args, fmt_t *f
   format_integer(num_string, num, 0, fmt, len);
 }
 
-static void process_unsigned_int(va_list args, fmt_t *fmt, size_t *len) {
+static void process_unsigned_int(va_list* args, fmt_t *fmt, size_t *len) {
   process_unsigned_integer(10, NOT_UPPER, args, fmt, len);
 }
-static void process_hex_int(va_list args, fmt_t *fmt, size_t *len) {
+static void process_hex_int(va_list* args, fmt_t *fmt, size_t *len) {
   process_unsigned_integer(16, NOT_UPPER, args, fmt, len);
 }
 
-static void process_hex_int_with_upper(va_list args, fmt_t *fmt, size_t *len) {
+static void process_hex_int_with_upper(va_list* args, fmt_t *fmt, size_t *len) {
   process_unsigned_integer(16, UPPER, args, fmt, len);
 }
 
-static void process_octal_int(va_list args, fmt_t *fmt, size_t *len) {
+static void process_octal_int(va_list* args, fmt_t *fmt, size_t *len) {
   process_unsigned_integer(8, NOT_UPPER, args, fmt, len);
 }
 
@@ -424,8 +424,8 @@ static void change_flags_to_correct_for_pointer(fmt_t *fmt) {
   fmt->flags.base = 1;
 }
 
-static void process_pointer(va_list args, fmt_t *fmt, size_t *len) {
-  uintptr_t ptr = va_arg(args, uintptr_t);
+static void process_pointer(va_list* args, fmt_t *fmt, size_t *len) {
+  uintptr_t ptr = va_arg(*args, uintptr_t);
   change_flags_to_correct_for_pointer(fmt);
   char num_string[MAX_NUM_STR_LEN];
   char *num_string_with_prefix = num_string;
@@ -435,24 +435,24 @@ static void process_pointer(va_list args, fmt_t *fmt, size_t *len) {
   format_integer(num_string, ptr, 0, fmt, len);
 }
 
-static void process_procent(__attribute__((unused)) va_list args,
+static void process_procent(__attribute__((unused)) va_list* args,
                             __attribute__((unused)) fmt_t *fmt, size_t *len) {
   terminal_putchar('%');
-  *(len)++;
+  (*len)++;
 }
 
-static void process_number(va_list args, fmt_t *fmt, size_t *len) {
+static void process_number(va_list* args, fmt_t *fmt, size_t *len) {
   long int *num = 0;
   if (fmt->length == 'l')
-    num = (long int *)va_arg(args, long int *);
+    num = (long int *)va_arg(*args, long int *);
   else if (fmt->length == 'h')
-    num = (long int *)((short int *)va_arg(args, int *));
+    num = (long int *)((short int *)va_arg(*args, int *));
   else
-    num = (long int *)va_arg(args, int *);
+    num = (long int *)va_arg(*args, int *);
   *num = (long int)*len;
 }
 
-static void process_type(va_list args, fmt_t *fmt, size_t *len) {
+static void process_type(va_list* args, fmt_t *fmt, size_t *len) {
   switch (fmt->type)
   {
   case 'c':
@@ -503,8 +503,8 @@ int printk(const char *format, ...) {
       fmt_str++;
       fmt_t fmt;
       init_fmt(&fmt);
-      fmt_str = parse_all_in_flag(fmt_str, args, &fmt);
-      process_type(args, &fmt, &len);
+      fmt_str = parse_all_in_flag(fmt_str, &args, &fmt);
+      process_type(&args, &fmt, &len);
     }
   }
   va_end(args);

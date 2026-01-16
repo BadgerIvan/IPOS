@@ -1,43 +1,104 @@
-//1048576 - всего страниц
-//32768 - нужно uint32_t для битовых масок
-//128Кб для хранения
 #include <stdint.h>
+#include <string.h>
 #include <multiboot.h>
 #include <debug/debug.h>
 #include <kernel/panic.h>
 
-static uint32_t bitmap[32768] = { 0 };
+#define TOTAL_UINT32_FOR_BITMAP 32768
+
+static uint32_t bitmap[TOTAL_UINT32_FOR_BITMAP] = { 0 };
 
 extern uint32_t KERNEL_END;
-static uint32_t _end = (uint32_t)&KERNEL_END;
+static uint32_t kernel_end = (uint32_t)&KERNEL_END;
 
-#define MARK_NUM(num) bitmap[num >> 5] |= (1 << (num & 31))
+uint32_t start_search = 0;
+uint32_t end_search = TOTAL_UINT32_FOR_BITMAP;
 
-void init_frames() {
-    _end = (_end + 0xFFF) & ~0xFFF;
-    assertk((_end & 0xFFF) == 0);
+static inline __attribute__((always_inline))
+void mark_frame(uint32_t page_num) {
+    bitmap[page_num >> 5] |= (1U << (page_num & 31));
+}
 
-    uint32_t num_pages = _end >> 12;
+#define mark_frame_addr(addr) mark_frame((addr) >> 12)
 
-    for(uint32_t i = 0; i < num_pages; i += 1) {
-        MARK_NUM(i);
-    }
+static inline __attribute__((always_inline))
+void mark_frames(uint32_t start_page_num, uint32_t end_page_num) {
+    for(uint32_t i = start_page_num; i < end_page_num; ++i) mark_frame(i);
+}
+
+#define mark_frames_addr(start_addr, end_addr) mark_frames((start_addr) >> 12, (end_addr) >> 12)
+
+static inline __attribute__((always_inline))
+int is_frame_marked(uint32_t page_num) {
+    return bitmap[page_num >> 5] & (1U << (page_num & 31));
+}
+
+#define is_frame_marked_addr(addr) is_frame_marked((addr) >> 12)
+
+static inline  __attribute__((always_inline))
+int find_first_zero_bit(uint32_t num) {
+    num = ~num;
+    return __builtin_ffs(num);
 }
 
 void mark_with_mmap(multiboot_info_t* mbd) {
+    if(!(mbd->flags & MULTIBOOT_INFO_MEMORY)) {
+        panic("Invalid info about memory");
+    }
+    debugf("end memory: 0x%08X\n", mbd->mem_upper << 10);
+    debugf("total memory: %u KB (%u B)\n", mbd->mem_upper + 1024, (mbd->mem_upper + 1024) << 10);
     if(!(mbd->flags & MULTIBOOT_INFO_MEM_MAP)) {
         panic("Invalid memory map");
     }
-
     for(uint32_t i = 0; i < mbd->mmap_length;) {
         multiboot_memory_map_t* mmap = (multiboot_memory_map_t*)(mbd->mmap_addr + i);
         if(mmap->type != MULTIBOOT_MEMORY_AVAILABLE) {
-            uint64_t addr_high = ((mmap->addr + mmap->length) + 0xFFF) & ~0xFFF;
-            uint64_t addr_low = mmap->addr & ~0xFFF;
-            for(uint64_t addr = addr_low; addr < addr_high; addr += 0x1000) {
-                MARK_NUM(addr >> 12);
-            }
+            uint32_t addr_high = ((mmap->base_addr_low + mmap->length_low) + 0xFFF) & ~0xFFF;
+            uint32_t addr_low = mmap->base_addr_low & ~0xFFF;
+            debugf("busy memory: 0x%08X (0x%08X), end: 0x%08X (0x%08X), len: %u\n", \
+                mmap->base_addr_low, addr_low, \
+                mmap->base_addr_low + mmap->length_low, addr_high, \
+                mmap->length_low);
+            mark_frames_addr(addr_low, addr_high);
         }
         i += mmap->size + sizeof(mmap->size);
     }
+}
+
+static inline __attribute__((always_inline))
+void set_bounds(multiboot_info_t* mbd) {
+    start_search = kernel_end >> 12;
+    end_search = (((mbd->mem_upper << 10) + 0x100000) & ~0xFFF) >> 12;
+}
+
+void init_frames(multiboot_info_t* mbd) {
+    kernel_end = (kernel_end + 0xFFF) & ~0xFFF;
+    assertk((kernel_end & 0xFFF) == 0);
+
+    mark_frames_addr(0, kernel_end);
+
+    mark_with_mmap(mbd);
+
+    set_bounds(mbd);
+    debugf("start search: %u, end: %u\n", start_search, end_search);
+}
+
+uint32_t alloc_frame() {
+    uint32_t start_idx = start_search >> 5;
+    uint32_t end_idx = (end_search + 31) >> 5;
+    for(uint32_t i = start_idx; i < end_idx; ++i) {
+        if(bitmap[i] != UINT32_MAX) {
+            uint32_t page_num = (i << 5) + find_first_zero_bit(bitmap[i]);
+            mark_frame(page_num);
+            uint32_t addr = page_num << 12;
+            memset((uint32_t*)addr, 0, 4096);
+            return page_num << 12;
+        }
+    }
+    panic("Out of memory");
+}
+
+void free_frame(uint32_t frame_phys_addr) {
+    uint32_t page_num = frame_phys_addr >> 12;
+    bitmap[page_num >> 5] &= ~(1U << (page_num & 31));
 }
