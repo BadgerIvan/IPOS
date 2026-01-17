@@ -17,7 +17,7 @@
 
 #include <debug/debug.h>
 
-void kernel_main(multiboot_info_t* mbd) {
+void kernel_main(multiboot_info_t* mbd, uint32_t page_dir, uint32_t first_page_table) {
 
 	init_terminal();
 	debug("Terminal: successfully\n");
@@ -31,18 +31,11 @@ void kernel_main(multiboot_info_t* mbd) {
 	init_timer(11931);
     debug("Timer: successfully\n");
 
-	init_paging();
-	debug("FIRST 4MB PAGING: successfully\n");
-
 	init_frames(mbd);
 	debug("FRAMES: successfully\n");
-	
-	uint32_t addr = alloc_frame();
-	debugf("0x%08X\n", addr);
-	free_frame(addr);
 
-	init_keyboard();
-    debug("Keyboard: successfully\n");
+	// init_keyboard();
+    // debug("Keyboard: successfully\n");
 
 	while(1) {
 		asm volatile("hlt");

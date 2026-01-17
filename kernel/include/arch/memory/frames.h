@@ -5,7 +5,7 @@
 #include <multiboot.h>
 
 void init_frames(multiboot_info_t* mbd);
-uint32_t alloc_frame(); //return frame_phys_addr
-void free_frame(uint32_t frame_phys_addr);
+uint32_t alloc_frame();                     //return frame_phys_addr
+void free_frame(uint32_t frame_phys_addr);  //free frame
 
 #endif

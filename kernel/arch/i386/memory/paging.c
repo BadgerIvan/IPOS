@@ -1,11 +1,10 @@
 #include <stdint.h>
-#include <string.h>
 #include <arch/memory/paging.h>
 #include <kernel/panic.h>
 #include <debug/debug.h>
 
 typedef struct {
-    uint32_t preset : 1;
+    uint32_t present : 1;
     uint32_t read_write : 1;
     uint32_t user_supervisor : 1;
     uint32_t pwt : 1;               //write_throught
@@ -18,7 +17,7 @@ typedef struct {
 } __attribute__((packed)) page_dir_t;
 
 typedef struct {
-    uint32_t preset : 1;
+    uint32_t present : 1;
     uint32_t read_write : 1;
     uint32_t user_supervisor : 1;
     uint32_t pwt : 1;               //write_throught
@@ -50,14 +49,14 @@ void init_paging() {
     assertk(sizeof(page_dir_t) == 4);
     assertk(sizeof(page_table_t) == 4);
     
-    memset(&page_dir, 0, sizeof(page_dir_t) * 1024);
-    memset(&first_page_table, 0, sizeof(page_table_t) * 1024);
+    __builtin_memset(&page_dir, 0, sizeof(page_dir_t) * 1024);
+    __builtin_memset(&first_page_table, 0, sizeof(page_table_t) * 1024);
     for(int i = 0; i < 1024; i++) {
-        first_page_table[i].preset = 1;
+        first_page_table[i].present = 1;
         first_page_table[i].read_write = 1;
         first_page_table[i].address = i;
     }
-    page_dir[0].preset = 1;
+    page_dir[0].present = 1;
     page_dir[0].read_write = 1;
     page_dir[0].address = ((uint32_t)first_page_table) >> 12;
 
