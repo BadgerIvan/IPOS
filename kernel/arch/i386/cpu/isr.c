@@ -174,7 +174,7 @@ void isr_stop() {
 }
 
 void isr_handler(registers_t *r) {
-    debugf("\n%s %u %s\n", "received interrupt: ", r->int_no, exception_messages[r->int_no]);
+    debugf("\nReceived interrupt: %u %s\n", r->int_no, exception_messages[r->int_no]);
     panic("isr");
 }
 

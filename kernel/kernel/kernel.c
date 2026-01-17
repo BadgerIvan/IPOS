@@ -17,7 +17,7 @@
 
 #include <debug/debug.h>
 
-void kernel_main(multiboot_info_t* mbd, uint32_t page_dir, uint32_t first_page_table) {
+void kernel_main(multiboot_info_t* mbd, void* page_dir, void* first_page_table) {
 
 	init_terminal();
 	debug("Terminal: successfully\n");
@@ -31,11 +31,14 @@ void kernel_main(multiboot_info_t* mbd, uint32_t page_dir, uint32_t first_page_t
 	init_timer(11931);
     debug("Timer: successfully\n");
 
-	init_frames(mbd);
-	debug("FRAMES: successfully\n");
+	init_paging(page_dir, first_page_table);
+	debug("Paging first 4MB: successfully\n");
 
-	// init_keyboard();
-    // debug("Keyboard: successfully\n");
+	init_frames(mbd);
+	debug("Frames: successfully\n");
+
+	init_keyboard();
+    debug("Keyboard: successfully\n");
 
 	while(1) {
 		asm volatile("hlt");

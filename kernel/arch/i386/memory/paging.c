@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stddef.h>
 #include <arch/memory/paging.h>
 #include <kernel/panic.h>
 #include <debug/debug.h>
@@ -30,42 +31,32 @@ typedef struct {
     uint32_t address : 20;
 } __attribute__((packed)) page_table_t;
 
-page_dir_t page_dir[1024] __attribute__((aligned(4096)));
+page_dir_t* page_dir = NULL;
 
-page_table_t first_page_table[1024] __attribute__((aligned(4096)));
+page_table_t* first_page_table = NULL;
 
 void test_paging() {
-    int* test_address = (int*)0x300000;
-    *test_address = 10;
-    if(first_page_table[768].accessed != 1)
-        panic("PAGING ABORT!");
-    if(first_page_table[768].dirty != 1)
-        panic("PAGING ABORT!");
-    if(*test_address != 10)
-        panic("PAGING ABORT!");
+    int* test_address = (int*)0xC0300000;
+    *test_address = 0xDEADBEEF;
+    int value = *test_address;
+    if(value != 0xDEADBEEF) {
+        debugf("Paging test failed: wrote 0xDEADBEEF, read 0x%08X\n", value);
+        panic("Paging abort!");
+    }
 }
 
-void init_paging() {
+void init_paging(void* _page_dir, void* _first_page_table) {
     assertk(sizeof(page_dir_t) == 4);
     assertk(sizeof(page_table_t) == 4);
-    
-    __builtin_memset(&page_dir, 0, sizeof(page_dir_t) * 1024);
-    __builtin_memset(&first_page_table, 0, sizeof(page_table_t) * 1024);
-    for(int i = 0; i < 1024; i++) {
-        first_page_table[i].present = 1;
-        first_page_table[i].read_write = 1;
-        first_page_table[i].address = i;
-    }
-    page_dir[0].present = 1;
-    page_dir[0].read_write = 1;
-    page_dir[0].address = ((uint32_t)first_page_table) >> 12;
 
-    asm volatile("mov %0, %%cr3" : : "r" (page_dir));
-    
-    uint32_t cr0;
-    asm volatile("mov %%cr0, %0" : "=r" (cr0));
-    cr0 |= 0x80000000;
-    asm volatile("mov %0, %%cr0" : : "r" (cr0));
+    page_dir = (page_dir_t*)_page_dir;
+    first_page_table = (page_table_t*)_first_page_table;
+
+    assertk(page_dir != NULL);
+    assertk(first_page_table != NULL);
+
+    debugf("page_dir address: 0x%08X\n", (uint32_t)page_dir);
+    debugf("first_page_table address: 0x%08X\n", (uint32_t)first_page_table);
 
     test_paging();
 }

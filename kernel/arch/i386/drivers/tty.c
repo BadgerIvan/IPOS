@@ -13,7 +13,7 @@
 
 #define VGA_WIDTH 80
 #define VGA_HEIGHT 25
-#define VGA_MEMORY (uint16_t*)0xC03FF000
+#define VGA_MEMORY (uint16_t*)0xC00B8000
 
 static uint32_t terminal_row;
 static uint32_t terminal_column;

@@ -46,25 +46,18 @@ _start:
 to_higher_half_kernel:
     mov edi, (boot_first_page_table - VIRTUAL_BASE)
     mov esi, 0
-    mov ecx, 1023
+    mov ecx, 1024
 
     .map_pages:
-    cmp esi, KERNEL_START
-    jl .skip_mapping
-    cmp esi, KERNEL_END
-    jge .done_mapping
-
     mov edx, esi
     or edx, 0x003
     mov [edi], edx
 
-    .skip_mapping:
     add esi, 4096
     add edi, 4
     loop .map_pages
 
     .done_mapping:
-    mov dword [boot_first_page_table - VIRTUAL_BASE + 1023 * 4], (0x000B8000 | 0x003)
 
     mov dword [boot_page_dir - VIRTUAL_BASE + 0], (boot_first_page_table - VIRTUAL_BASE + 0x003)
     mov dword [boot_page_dir - VIRTUAL_BASE + 768 * 4], (boot_first_page_table - VIRTUAL_BASE + 0x003)
@@ -89,10 +82,11 @@ section .text
 
     mov esp, stack_top
 
-    push dword [boot_first_page_table]
+    push dword boot_first_page_table
 
-    push dword [boot_page_dir]
+    push dword boot_page_dir
 
+    add ebx, VIRTUAL_BASE
     push ebx
 
     extern kernel_main

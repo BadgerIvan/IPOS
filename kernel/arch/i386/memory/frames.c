@@ -51,7 +51,7 @@ void mark_with_mmap(multiboot_info_t* mbd) {
         panic("Invalid memory map");
     }
     for(uint32_t i = 0; i < mbd->mmap_length;) {
-        multiboot_memory_map_t* mmap = (multiboot_memory_map_t*)(mbd->mmap_addr + i);
+        multiboot_memory_map_t* mmap = (multiboot_memory_map_t*)(mbd->mmap_addr + i + 0xC0000000);
         if(mmap->type != MULTIBOOT_MEMORY_AVAILABLE) {
             uint32_t addr_high = ((mmap->base_addr_low + mmap->length_low) + 0xFFF) & ~0xFFF;
             uint32_t addr_low = mmap->base_addr_low & ~0xFFF;
@@ -90,8 +90,6 @@ uint32_t alloc_frame() {
         if(bitmap[i] != UINT32_MAX) {
             uint32_t page_num = (i << 5) + find_first_zero_bit(bitmap[i]);
             mark_frame(page_num);
-            uint32_t addr = page_num << 12;
-            memset((uint32_t*)addr, 0, 4096);
             return page_num << 12;
         }
     }
