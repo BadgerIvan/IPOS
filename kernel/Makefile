@@ -69,11 +69,11 @@ $(LIBS) \
 .PHONY: all clean install install-headers install-kernel
 .SUFFIXES: .o .c .S .asm
 
-all: ipos.kernel
+all: myos.kernel
 
-ipos.kernel: $(OBJS) $(ARCHDIR)/linker.ld
+myos.kernel: $(OBJS) $(ARCHDIR)/linker.ld
 	$(CC) -T $(ARCHDIR)/linker.ld -o $@ $(CFLAGS) $(LINK_LIST)
-	grub-file --is-x86-multiboot ipos.kernel
+	grub-file --is-x86-multiboot myos.kernel
 
 $(BOOTLOADERDIR)/crtbegin.o $(BOOTLOADERDIR)/crtend.o:
 	OBJ=`$(CC) $(CFLAGS) $(LDFLAGS) -print-file-name=$(@F)` && cp "$$OBJ" $@
@@ -88,7 +88,7 @@ $(BOOTLOADERDIR)/crtbegin.o $(BOOTLOADERDIR)/crtend.o:
 	$(ASM) $< $(ASMFLAGS) -o $@
 
 clean:
-	rm -f ipos.kernel
+	rm -f myos.kernel
 	rm -f $(OBJS) *.o */*.o */*/*.o
 	rm -f $(OBJS:.o=.d) *.d */*.d */*/*.d
 
@@ -98,8 +98,8 @@ install-headers:
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	cp -R --preserve=timestamps include/. $(DESTDIR)$(INCLUDEDIR)/.
 
-install-kernel: ipos.kernel
+install-kernel: myos.kernel
 	mkdir -p $(DESTDIR)$(BOOTDIR)
-	cp ipos.kernel $(DESTDIR)$(BOOTDIR)
+	cp myos.kernel $(DESTDIR)$(BOOTDIR)
 
 -include $(OBJS:.o=.d)

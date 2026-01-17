@@ -4,7 +4,7 @@ set architecture i386
 
 define connect
     target remote localhost:1234
-    symbol-file isodir/boot/ipos.kernel
+    symbol-file isodir/boot/myos.kernel
 end
 
 define pdump

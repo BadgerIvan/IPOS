@@ -8,6 +8,6 @@ done
 
 rm -rf sysroot
 rm -rf isodir
-rm -rf ipos.iso
+rm -rf myos.iso
 
 . ./headers.sh
