@@ -50,8 +50,9 @@ void mark_with_mmap(multiboot_info_t* mbd) {
     if(!(mbd->flags & MULTIBOOT_INFO_MEM_MAP)) {
         panic("Invalid memory map");
     }
+    mbd->mmap_addr += 0xC0000000;
     for(uint32_t i = 0; i < mbd->mmap_length;) {
-        multiboot_memory_map_t* mmap = (multiboot_memory_map_t*)(mbd->mmap_addr + i + 0xC0000000);
+        multiboot_memory_map_t* mmap = (multiboot_memory_map_t*)(mbd->mmap_addr + i);
         if(mmap->type != MULTIBOOT_MEMORY_AVAILABLE) {
             uint32_t addr_high = ((mmap->base_addr_low + mmap->length_low) + 0xFFF) & ~0xFFF;
             uint32_t addr_low = mmap->base_addr_low & ~0xFFF;

@@ -20,10 +20,12 @@ stack_bottom:
 resb 16384  ; 16 KiB
 stack_top equ stack_bottom + 16384
 
+section .data
+align 16
 boot_page_dir:
-resb 4096
+    times 4096 db 0
 boot_first_page_table:
-resb 4096
+    times 4096 db 0
 
 section .boot.text
 
@@ -49,6 +51,8 @@ to_higher_half_kernel:
     mov ecx, 1024
 
     .map_pages:
+    cmp esi, KERNEL_END
+    jge .done_mapping
     mov edx, esi
     or edx, 0x003
     mov [edi], edx
@@ -93,7 +97,7 @@ section .text
     call kernel_main
 
     cli
-.end:
+    .end:
     hlt
     jmp .end
 

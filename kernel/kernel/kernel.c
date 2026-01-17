@@ -40,6 +40,16 @@ void kernel_main(multiboot_info_t* mbd, void* page_dir, void* first_page_table) 
 	init_keyboard();
     debug("Keyboard: successfully\n");
 
+	uint32_t phys_addr = alloc_frame();
+	uint32_t virt_addr = map_frame(phys_addr, PG_KERNEL | PG_READWRITE);
+
+	uint32_t* array = (uint32_t*)virt_addr;
+
+	for(int i = 0; i < 1024; i++) {
+		array[i] = i;
+		printk("%d\n", array[i]);
+	}
+
 	while(1) {
 		asm volatile("hlt");
 	}
