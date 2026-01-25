@@ -11,8 +11,18 @@ static uint32_t bitmap[TOTAL_UINT32_FOR_BITMAP] = { 0 };
 extern uint32_t KERNEL_END;
 static uint32_t kernel_end = (uint32_t)&KERNEL_END;
 
-uint32_t start_search = 0;
-uint32_t end_search = TOTAL_UINT32_FOR_BITMAP;
+static uint32_t start_search = 0;
+static uint32_t end_search = TOTAL_UINT32_FOR_BITMAP;
+
+static inline __attribute__((always_inline))
+void lock() {
+
+}
+
+static inline __attribute__((always_inline))
+void unlock() {
+
+}
 
 static inline __attribute__((always_inline))
 void mark_frame(uint32_t page_num) {
@@ -38,7 +48,7 @@ int is_frame_marked(uint32_t page_num) {
 static inline  __attribute__((always_inline))
 int find_first_zero_bit(uint32_t num) {
     num = ~num;
-    return __builtin_ffs(num);
+    return __builtin_ffs(num) - 1;
 }
 
 void mark_with_mmap(multiboot_info_t* mbd) {
@@ -85,12 +95,14 @@ void init_frames(multiboot_info_t* mbd) {
 }
 
 uint32_t alloc_frame() {
+    lock();
     uint32_t start_idx = start_search >> 5;
     uint32_t end_idx = (end_search + 31) >> 5;
     for(uint32_t i = start_idx; i < end_idx; ++i) {
         if(bitmap[i] != UINT32_MAX) {
             uint32_t page_num = (i << 5) + find_first_zero_bit(bitmap[i]);
             mark_frame(page_num);
+            unlock();
             return page_num << 12;
         }
     }
@@ -98,6 +110,8 @@ uint32_t alloc_frame() {
 }
 
 void free_frame(uint32_t frame_phys_addr) {
+    lock();
     uint32_t page_num = frame_phys_addr >> 12;
     bitmap[page_num >> 5] &= ~(1U << (page_num & 31));
+    unlock();
 }

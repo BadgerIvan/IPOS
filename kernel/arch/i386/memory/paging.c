@@ -1,7 +1,9 @@
 #include <stdint.h>
 #include <stddef.h>
+#include <stdarg.h>
 #include <arch/memory/frames.h>
 #include <arch/memory/paging.h>
+#include <arch/cpu/isr.h>
 #include <kernel/panic.h>
 #include <debug/debug.h>
 
@@ -41,105 +43,201 @@ typedef union page_table_entry {
     uint32_t value;
 } page_table_entry_t;
 
-page_directory_entry_t* page_dir = NULL;
+static page_directory_entry_t* page_dir = NULL;
 
-page_table_entry_t* page_tables[1024] = { 0 };
+static page_table_entry_t* page_tables[1024] = { 0 };
 
-uint32_t start_index = 768;
-uint32_t end_index = 769;
-uint32_t index_save_for_next_page_table = 0;
-page_table_entry_t* save_for_next_page_table = NULL;
+static uint32_t start_index = 768;
+static uint32_t end_index = 769;
+
+void paging_lock() {
+
+}
+
+void paging_unlock() {
+
+}
 
 static inline __attribute__((always_inline))
 void invlpg(uint32_t virt_addr) {
     asm volatile("invlpg (%0)" : : "r" (virt_addr));
 }
 
+void page_fault(registers_t* regs) {
+    uint32_t faulting_address;
+    asm volatile("mov %%cr2, %0" : "=r" (faulting_address));
+
+    int present = !(regs->err_code & 0x1);   // Страница отсутствует
+    int rw = regs->err_code & 0x2;           // Операция записи?
+    int us = regs->err_code & 0x4;           // Процессор находится в пользовательском режиме?
+    int reserved = regs->err_code & 0x8;     // В записи страницы переписаны биты, зарезервированные для нужд процессора?
+    //int id = regs->err_code & 0x10;          // Причина во время выборки инструкции?
+
+    printk("Page fault: p:%d rw:%d su:%d r:%d at 0x%08X\n", 
+        present, rw, us, reserved, faulting_address);
+    uint32_t index_in_pd = faulting_address >> 22;
+    uint32_t index_in_pt = (faulting_address >> 12) & 0x3FF;
+    printk("index in pd: %d, index in pt: %d\n", index_in_pd, index_in_pt);
+    panic("Page fault");
+}
+
+static
+uint32_t map_page(uint32_t idx_in_pde, uint32_t idx_in_pte, uint32_t flags, ...) {
+    if(page_tables[idx_in_pde] == NULL || page_tables[idx_in_pde][idx_in_pte].bits.present == 1)
+        return 0;
+    uint32_t phys_addr = 0;
+    if(flags & PG_PHYS_ADDR) {
+        va_list arg;
+        va_start(arg, flags);
+        phys_addr = (uint32_t)va_arg(arg, uint32_t);
+        va_end(arg);
+    } else{
+        phys_addr = alloc_frame();
+    }
+    flags &= 0x6;
+    page_tables[idx_in_pde][idx_in_pte].value = 0;
+    page_tables[idx_in_pde][idx_in_pte].value |= flags;
+    page_tables[idx_in_pde][idx_in_pte].bits.address = phys_addr >> 12;
+    page_tables[idx_in_pde][idx_in_pte].bits.present = 1;
+    uint32_t virt_addr = (idx_in_pde << 22) + (idx_in_pte << 12);
+    invlpg(virt_addr);
+    __builtin_memset((void*)virt_addr, 0, 4096);
+    return virt_addr;
+}
+
 void init_paging(void* _page_dir, void* _first_page_table) {
     assertk(sizeof(page_directory_entry_t) == 4);
     assertk(sizeof(page_table_entry_t) == 4);
+
+    paging_lock();
 
     page_dir = (page_directory_entry_t*)_page_dir;
     page_tables[start_index] = (page_table_entry_t*)_first_page_table;
 
     assertk(page_dir != NULL);
+    assertk(page_tables[start_index] != NULL);
 
     debugf("page_dir address: 0x%08X\n", (uint32_t)page_dir);
     debugf("first_page_table address: 0x%08X\n", (uint32_t)page_tables[start_index]);
     
     int flag = 0;
-    for(uint32_t i = 0; i < 1024; i++) {
-        if(page_tables[start_index][i].bits.present == 0) {
-            debugf("Kernel + 1MB takes %d pages\n", i);
-            page_tables[start_index][i].bits.available = FOR_NEXT_PAGE;
-            save_for_next_page_table = &page_tables[start_index][i];
-            index_save_for_next_page_table = i;
+    for(uint32_t i = start_index; i < end_index; i++) {
+        for(uint32_t j = 0; j < 1024; j++) {
+            if(page_tables[i] == NULL || page_tables[i][j].bits.present == 1)
+                continue;
+            uint32_t phys_addr = alloc_frame();
+            uint32_t virt_addr = map_page(i, j, PG_KERNEL | PG_READWRITE | PG_PHYS_ADDR, phys_addr);
+            page_tables[1023] = (page_table_entry_t*)virt_addr;
+            page_dir[1023].bits.address = phys_addr >> 12;
+            page_dir[1023].bits.read_write = 1;
+            page_dir[1023].bits.present = 1;
             flag = 1;
             break;
         }
     }
     if(!flag)
-        panic("Out of first_page_table");
+        panic("Out of first pte");
+
+    register_interrupt_handler(ISR14, page_fault);
+
+    paging_unlock();
 }
 
-static void create_page_table(uint32_t index_in_page_dir) {
-    debugf("START CREATE NEW TABLE %d\n", index_in_page_dir);
+static 
+int create_new_pte(uint32_t idx_in_pd) {
+    if(idx_in_pd > 1022)
+        return 0;
+    if(page_dir[idx_in_pd].bits.present == 1)
+        return 0;
     uint32_t phys_addr = alloc_frame();
-    save_for_next_page_table->bits.read_write = 1;
-    save_for_next_page_table->bits.address = phys_addr >> 12;
-    save_for_next_page_table->bits.present = 1;
-    uint32_t virt_addr = (index_in_page_dir - 1 << 22) + (index_save_for_next_page_table << 12);
-    page_dir[index_in_page_dir].value = 0;
-    page_dir[index_in_page_dir].bits.read_write = 1;
-    page_dir[index_in_page_dir].bits.address = phys_addr >> 12;
-    page_dir[index_in_page_dir].bits.present = 1;
-    invlpg(virt_addr);
-    __builtin_memset((void*)virt_addr, 0, 4096);
-    page_table_entry_t* page_entry_next = (page_table_entry_t*)(virt_addr);
-    page_tables[index_in_page_dir] = page_entry_next;
-    page_entry_next[0].bits.available = FOR_NEXT_PAGE;
-    save_for_next_page_table = &page_entry_next[0];
-    index_save_for_next_page_table = 0;
-    debugf("END CREATE NEW TABLE %d\n", index_in_page_dir);
+    uint32_t virt_addr = map_page(1023, idx_in_pd, PG_KERNEL | PG_READWRITE | PG_PHYS_ADDR, phys_addr);
+    if(virt_addr == 0) {
+        free_frame(phys_addr);
+        return 0;
+    }
+    page_tables[idx_in_pd] = (page_table_entry_t*)virt_addr;
+    page_dir[idx_in_pd].value = 0;
+    page_dir[idx_in_pd].bits.read_write = 1;
+    page_dir[idx_in_pd].bits.address = phys_addr >> 12;
+    page_dir[idx_in_pd].bits.present = 1;
+    return 1;
 }
 
-uint32_t map_frame(uint32_t phys_addr, uint32_t flags) {
-    if(flags & PG_USER)
-        panic("User mode blocked");
-    flags &= 0x6;
-    for(uint32_t i = start_index; i < end_index; i++) {
-        for(uint32_t j = 0; j < 1024; j++) {
-            if(page_tables[i] == NULL)
+static
+int find_free_pages(uint32_t pages, uint32_t* idx_in_pd, uint32_t* idx_in_pte, \
+    uint32_t* last_idx_in_pd, uint32_t* last_idx_in_pte) {
+    do {
+        uint32_t find_pages = 0;
+        for(uint32_t i = start_index; i < end_index; i++) {
+            if(page_tables[i] == NULL) {
+                find_pages = 0;
                 break;
-            if(page_tables[i][j].bits.present == 0 && page_tables[i][j].bits.available != FOR_NEXT_PAGE) {
-                page_tables[i][j].value = 0;
-                page_tables[i][j].value |= flags;
-                page_tables[i][j].bits.address = phys_addr >> 12;
-                page_tables[i][j].bits.present = 1;
-                uint32_t virt_addr = (i << 22) + (j << 12);
-                invlpg(virt_addr);
-                return virt_addr;
+            }
+            for(uint32_t j = 0; j < 1024; j++) {
+                if(page_tables[i][j].bits.present == 0) {
+                    find_pages++;
+                    if(find_pages == 1) {
+                        *idx_in_pd = i;
+                        *idx_in_pte = j;
+                    }
+                    if(find_pages == pages) {
+                        *last_idx_in_pd = i;
+                        *last_idx_in_pte = j;
+                        return 1;
+                    }
+                } else
+                    find_pages = 0;
             }
         }
-        if(page_tables[i] == NULL)
-            break;
-    }
-    if(end_index == 1024)
-            panic("Ouf of memory kernel");
-    create_page_table(end_index);
-    page_tables[end_index][1].value = 0;
-    page_tables[end_index][1].value |= flags;
-    page_tables[end_index][1].bits.address = phys_addr >> 12;
-    page_tables[end_index][1].bits.present = 1;
-    uint32_t virt_addr = (end_index << 22) + (1 << 12);
-    end_index++;
-    invlpg(virt_addr);
-    return virt_addr;
+        if(!create_new_pte(end_index)) {
+            return 0;
+        }
+        end_index++;
+    } while(1);
 }
 
-void unmap_frame(uint32_t virt_addr) {
-    uint32_t pd_index = virt_addr >> 22;
-    uint32_t pte_index = (virt_addr >> 12) & 0x3FF;
-    page_tables[pd_index][pte_index].value = 0;
-    invlpg(virt_addr);
+uint32_t map_pages(uint32_t pages, uint32_t flags) {
+    if(flags & PG_USER) 
+        panic("Not yet");
+    flags &= 0x6;
+    uint32_t idx_in_pd = 0;
+    uint32_t idx_in_pte = 0;
+    uint32_t last_idx_in_pd = 0;
+    uint32_t last_idx_in_pte = 0;
+    paging_lock();
+    if(!find_free_pages(pages, &idx_in_pd, &idx_in_pte, &last_idx_in_pd, &last_idx_in_pte))
+        return 0;
+    for(uint32_t i = idx_in_pd; i <= last_idx_in_pd; i++) {
+        uint32_t start = 0;
+        uint32_t end = 0;
+        if(i == idx_in_pd)
+            start = idx_in_pte;
+        else 
+            start = 0;
+        if(i == last_idx_in_pd)
+            end = last_idx_in_pte;
+        else 
+            end = 1023;
+        printk("%d: %d %d\n", i, start, end);
+        for(uint32_t j = start; j <= end; j++) {
+            uint32_t tmp = map_page(i, j, flags);
+            if(tmp == 0)
+                panic("gay");
+        }
+    }
+    paging_unlock();
+    return (idx_in_pd << 22) + (idx_in_pte << 12);
+}
+
+void unmap_pages(uint32_t virt_addr, uint32_t pages) {
+    if(virt_addr & 0xFFF)
+        return;
+    for(uint32_t i = 0; i < pages; i++) {
+        uint32_t pd_index = virt_addr >> 22;
+        uint32_t pte_index = (virt_addr >> 12) & 0x3FF;
+        uint32_t phys_addr = page_tables[pd_index][pte_index].bits.address << 12;
+        page_tables[pd_index][pte_index].value = 0;
+        invlpg(virt_addr);
+        free_frame(phys_addr);
+    }
 }

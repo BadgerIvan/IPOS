@@ -1,6 +1,3 @@
-#include <stdio.h>
-#include <ctype.h>
-
 #include <multiboot.h>
 
 #include <kernel/panic.h>
@@ -32,7 +29,7 @@ void kernel_main(multiboot_info_t* mbd, void* page_dir, void* first_page_table) 
     debug("Timer: successfully\n");
 
 	init_paging(page_dir, first_page_table);
-	debug("Paging first 4MB: successfully\n");
+	debug("Paging kernel: successfully\n");
 
 	init_frames(mbd);
 	debug("Frames: successfully\n");

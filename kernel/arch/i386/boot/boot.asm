@@ -21,14 +21,13 @@ resb 16384  ; 16 KiB
 stack_top equ stack_bottom + 16384
 
 section .data
-align 16
+align 4096
 boot_page_dir:
     times 4096 db 0
 boot_first_page_table:
     times 4096 db 0
 
 section .boot.text
-
 global _start
 extern KERNEL_START
 extern KERNEL_END
@@ -36,16 +35,16 @@ extern KERNEL_END
 _start:
     cli
 
+    xor ecx, ecx
+    xor edx, edx
+    xor esi, esi
+    xor edi, edi
+    xor ebp, ebp
+    xor esp, esp
+
     cmp eax, 0x2BADB002
-    jnz .end
+    jnz end
 
-    call to_higher_half_kernel
-
-    .end:
-    hlt
-    jmp .end
-
-to_higher_half_kernel:
     mov edi, (boot_first_page_table - VIRTUAL_BASE)
     mov esi, 0
     mov ecx, 1024
@@ -73,12 +72,13 @@ to_higher_half_kernel:
     or ecx, 0x80010000
     mov cr0, ecx
 
-    lea ecx, [.in_higher_half]
+    lea ecx, [in_higher_half]
     jmp ecx
 
 
 section .text
-.in_higher_half:
+extern kernel_main
+in_higher_half:
     mov dword [boot_page_dir + 0], 0
 
     mov ecx, cr3
@@ -93,11 +93,13 @@ section .text
     add ebx, VIRTUAL_BASE
     push ebx
 
-    extern kernel_main
     call kernel_main
 
+    jmp end
+
+
+end:
     cli
     .end:
     hlt
     jmp .end
-
