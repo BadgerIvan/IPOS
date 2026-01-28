@@ -5,29 +5,39 @@
 
 int init_serial(uint16_t port) {
     int flag = 1;
-    outb (port + 1 , 0x00); 
-    outb (port + 3 , 0x80); 
-    outb (port + 0 , 0x03); 
-    outb (port + 1 , 0x00); 
-    outb (port + 3 , 0x03); 
-    outb (port + 2 , 0xC7); 
-    outb (port + 4 , 0x0B); 
-    outb (port + 4 , 0x1E); 
-    outb (port + 0 , 0xAE); 
+    outb (port + 1 , 0x00);
+    io_wait();
+    outb (port + 3 , 0x80);
+    io_wait();
+    outb (port + 0 , 0x03);
+    io_wait();
+    outb (port + 1 , 0x00);
+    io_wait();
+    outb (port + 3 , 0x03);
+    io_wait();
+    outb (port + 2 , 0xC7);
+    io_wait();
+    outb (port + 4 , 0x0B);
+    io_wait();
+    outb (port + 4 , 0x1E);
+    io_wait();
+    outb (port + 0 , 0xAE);
+    io_wait();
     
     if (inb (port) != 0xAE) {        
-        flag = 0; 
+        return 0;
     }
 
-    if(flag)
-        outb (port + 4 , 0x0F);   
+    outb (port + 4 , 0x0F);
+    io_wait();
     
-    return flag;
+    return 1;
 }
 
 void serial_write_char(uint16_t port, char a) {
    while ((inb(port + 5) & 0x20) == 0);
    outb(port, a);
+   io_wait();
 }
 
 void serial_write(uint16_t port, const char *buffer, size_t size) {

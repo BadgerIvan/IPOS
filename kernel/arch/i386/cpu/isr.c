@@ -132,15 +132,25 @@ void init_isr() {
     set_idt_gate(31, (uint32_t) isr31);
 
     outb(0x20, 0x11);
+    io_wait();
     outb(0xA0, 0x11);
+    io_wait();
     outb(0x21, 0x20);
+    io_wait();
     outb(0xA1, 0x28);
+    io_wait();
     outb(0x21, 0x04);
+    io_wait();
     outb(0xA1, 0x02);
+    io_wait();
     outb(0x21, 0x01);
+    io_wait();
     outb(0xA1, 0x01);
+    io_wait();
     outb(0x21, 0x0);
+    io_wait();
     outb(0xA1, 0x0);
+    io_wait();
 
     set_idt_gate(32, (uint32_t)irq0);
     set_idt_gate(33, (uint32_t)irq1);
@@ -175,7 +185,7 @@ void isr_stop() {
 
 void isr_handler(registers_t *r) {
     debugf("\nReceived interrupt: %u %s\n", r->int_no, exception_messages[r->int_no]);
-    panic("isr");
+    panic("int");
 }
 
 void register_interrupt_handler(uint8_t n, isr_t handler) {
