@@ -1,6 +1,7 @@
 #include <multiboot.h>
 
 #include <kernel/panic.h>
+#include <kernel/heap.h>
 
 #include <arch/cpu/gdt.h>
 #include <arch/drivers/tty.h>

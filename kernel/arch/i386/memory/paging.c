@@ -7,8 +7,6 @@
 #include <kernel/panic.h>
 #include <debug/debug.h>
 
-#define FOR_NEXT_PAGE 0x1
-
 typedef union page_directory_entry {
     struct {
         uint32_t present : 1;
@@ -50,13 +48,9 @@ static page_table_entry_t* page_tables[1024] = { 0 };
 static uint32_t start_index = 768;
 static uint32_t end_index = 769;
 
-void paging_lock() {
+#define lock() ((void)0)
 
-}
-
-void paging_unlock() {
-
-}
+#define unlock() ((void)0)
 
 static inline __attribute__((always_inline))
 void invlpg(uint32_t virt_addr) {
@@ -67,11 +61,10 @@ void page_fault(registers_t* regs) {
     uint32_t faulting_address;
     asm volatile("mov %%cr2, %0" : "=r" (faulting_address));
 
-    int present = !(regs->err_code & 0x1);   // Страница отсутствует
-    int rw = regs->err_code & 0x2;           // Операция записи?
-    int us = regs->err_code & 0x4;           // Процессор находится в пользовательском режиме?
-    int reserved = regs->err_code & 0x8;     // В записи страницы переписаны биты, зарезервированные для нужд процессора?
-    //int id = regs->err_code & 0x10;          // Причина во время выборки инструкции?
+    int present = !(regs->err_code & 0x1);
+    int rw = regs->err_code & 0x2 ? 1 : 0;
+    int us = regs->err_code & 0x4 ? 1 : 0;
+    int reserved = regs->err_code & 0x8 ? 1 : 0;
 
     printk("Page fault: p:%d rw:%d su:%d r:%d at 0x%08X\n", 
         present, rw, us, reserved, faulting_address);
@@ -106,10 +99,10 @@ uint32_t map_page(uint32_t idx_in_pde, uint32_t idx_in_pte, uint32_t flags, ...)
 }
 
 void init_paging(void* _page_dir, void* _first_page_table) {
+    register_interrupt_handler(ISR14, page_fault);
+
     assertk(sizeof(page_directory_entry_t) == 4);
     assertk(sizeof(page_table_entry_t) == 4);
-
-    paging_lock();
 
     page_dir = (page_directory_entry_t*)_page_dir;
     page_tables[start_index] = (page_table_entry_t*)_first_page_table;
@@ -137,10 +130,6 @@ void init_paging(void* _page_dir, void* _first_page_table) {
     }
     if(!flag)
         panic("Out of first pte");
-
-    register_interrupt_handler(ISR14, page_fault);
-
-    paging_unlock();
 }
 
 static 
@@ -204,7 +193,7 @@ uint32_t map_pages(uint32_t pages, uint32_t flags) {
     uint32_t idx_in_pte = 0;
     uint32_t last_idx_in_pd = 0;
     uint32_t last_idx_in_pte = 0;
-    paging_lock();
+    lock();
     if(!find_free_pages(pages, &idx_in_pd, &idx_in_pte, &last_idx_in_pd, &last_idx_in_pte))
         return 0;
     for(uint32_t i = idx_in_pd; i <= last_idx_in_pd; i++) {
@@ -225,13 +214,14 @@ uint32_t map_pages(uint32_t pages, uint32_t flags) {
                 panic("gay");
         }
     }
-    paging_unlock();
+    unlock();
     return (idx_in_pd << 22) + (idx_in_pte << 12);
 }
 
 void unmap_pages(uint32_t virt_addr, uint32_t pages) {
     if(virt_addr & 0xFFF)
         return;
+    lock();
     for(uint32_t i = 0; i < pages; i++) {
         uint32_t pd_index = virt_addr >> 22;
         uint32_t pte_index = (virt_addr >> 12) & 0x3FF;
@@ -240,4 +230,5 @@ void unmap_pages(uint32_t virt_addr, uint32_t pages) {
         invlpg(virt_addr);
         free_frame(phys_addr);
     }
+    unlock();
 }

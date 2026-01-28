@@ -3,6 +3,7 @@
 #include <multiboot.h>
 #include <debug/debug.h>
 #include <kernel/panic.h>
+#include <arch/memory/frames.h>
 
 #define TOTAL_UINT32_FOR_BITMAP 32768
 
@@ -14,15 +15,9 @@ static uint32_t kernel_end = (uint32_t)&KERNEL_END;
 static uint32_t start_search = 0;
 static uint32_t end_search = TOTAL_UINT32_FOR_BITMAP;
 
-static inline __attribute__((always_inline))
-void lock() {
+#define lock() ((void)0)
 
-}
-
-static inline __attribute__((always_inline))
-void unlock() {
-
-}
+#define unlock() ((void)0)
 
 static inline __attribute__((always_inline))
 void mark_frame(uint32_t page_num) {
@@ -51,6 +46,20 @@ int find_first_zero_bit(uint32_t num) {
     return __builtin_ffs(num) - 1;
 }
 
+#ifdef NDEBUG
+#define test() ((void)0)
+#else
+static inline __attribute__((always_inline))
+void test() {
+    uint32_t first = alloc_frame();
+    uint32_t second = alloc_frame();
+    if(first == second)
+        panic("Frames: test failed");
+    free_frame(first);
+    free_frame(second);
+}
+#endif
+
 void mark_with_mmap(multiboot_info_t* mbd) {
     if(!(mbd->flags & MULTIBOOT_INFO_MEMORY)) {
         panic("Invalid info about memory");
@@ -60,6 +69,7 @@ void mark_with_mmap(multiboot_info_t* mbd) {
     if(!(mbd->flags & MULTIBOOT_INFO_MEM_MAP)) {
         panic("Invalid memory map");
     }
+    mark_frames_addr((mbd->mem_upper + 1024) << 10, 0xFFFFFFFF);
     mbd->mmap_addr += 0xC0000000;
     for(uint32_t i = 0; i < mbd->mmap_length;) {
         multiboot_memory_map_t* mmap = (multiboot_memory_map_t*)(mbd->mmap_addr + i);
@@ -92,6 +102,8 @@ void init_frames(multiboot_info_t* mbd) {
 
     set_bounds(mbd);
     debugf("start search: %u, end: %u\n", start_search, end_search);
+
+    test();
 }
 
 uint32_t alloc_frame() {
