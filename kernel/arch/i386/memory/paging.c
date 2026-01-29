@@ -207,11 +207,10 @@ uint32_t map_pages(uint32_t pages, uint32_t flags) {
             end = last_idx_in_pte;
         else 
             end = 1023;
-        printk("%d: %d %d\n", i, start, end);
         for(uint32_t j = start; j <= end; j++) {
             uint32_t tmp = map_page(i, j, flags);
             if(tmp == 0)
-                panic("gay");
+                panic("Map page fault");
         }
     }
     unlock();
