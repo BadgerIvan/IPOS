@@ -4,7 +4,6 @@
 #include <arch/drivers/io.h>
 
 int init_serial(uint16_t port) {
-    int flag = 1;
     outb (port + 1 , 0x00);
     io_wait();
     outb (port + 3 , 0x80);

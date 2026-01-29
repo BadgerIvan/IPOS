@@ -8,7 +8,7 @@ static uint32_t tick = 0;
 
 static void timer_callback(registers_t *regs) {
     tick++;
-    if(tick == INT32_MAX) {
+    if(tick == UINT32_MAX) {
         tick = 0;
     }
 }
