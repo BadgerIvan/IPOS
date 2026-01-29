@@ -29,6 +29,7 @@ MEMORYDIR=$(ARCHDIR)/memory
 KERNELDIR=kernel
 SYSCALLSDIR=syscalls
 DEBUGDIR=debug
+LIBDIR=lib
 
 include $(BOOTLOADERDIR)/make.config
 include $(KERNELDIR)/make.config
@@ -37,6 +38,7 @@ include $(CPUDIR)/make.config
 include $(SYSCALLSDIR)/make.config
 include $(MEMORYDIR)/make.config
 include $(DEBUGDIR)/make.config
+include $(LIBDIR)/make.config
 
 OBJS=\
 $(BOOTLOADERDIR)/crti.o \
@@ -45,6 +47,7 @@ $(BOOTLOADERDIR)/crtend.o \
 $(BOOTLOADERDIR)/crtn.o \
 $(BOOT_OBJS) \
 $(KERNEL_OBJS) \
+$(LIB_OBJS) \
 $(DEBUG_OBJS) \
 $(DRIVERS_OBJS) \
 $(CPU_OBJS) \
@@ -59,6 +62,7 @@ $(BOOTLOADERDIR)/crtbegin.o \
 $(MEMORY_OBJS) \
 $(SYSCALLS_OBJS) \
 $(KERNEL_OBJS) \
+$(LIB_OBJS) \
 $(DEBUG_OBJS) \
 $(DRIVERS_OBJS) \
 $(CPU_OBJS) \
