@@ -51,4 +51,6 @@ int pci_read_header(uint32_t bus, uint32_t device, uint32_t func, pci_header_t* 
 
 node_t* pci_scan_all();
 
+void pci_print_all_headers(node_t** head);
+
 #endif

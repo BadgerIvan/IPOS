@@ -41,6 +41,9 @@ void kernel_main(multiboot_info_t* mbd, void* page_dir, void* first_page_table) 
 	init_keyboard();
     debug("Keyboard: successfully\n");
 
+	node_t* pci_headers = pci_scan_all();
+	pci_print_all_headers(&pci_headers);
+	
 	while(1) {
 		asm volatile("hlt");
 	}

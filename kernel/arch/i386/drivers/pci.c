@@ -102,3 +102,13 @@ node_t* pci_scan_all() {
     pci_headers = head;
     return head;
 }
+
+void pci_print_all_headers(node_t** head) {
+    node_t* current = *head;
+    while(current != NULL) {
+        pci_header_t* h = current->data;
+        printk("vendor: %#X, device: %#X, class: %#X, subclass: %#X\n",
+            h->bits.vendor, h->bits.device, h->bits.class, h->bits.subclass);
+        current = current->next;
+    }
+}
