@@ -27,8 +27,24 @@ typedef union {
 		uint8_t latency;
 		uint8_t header_type;
 		uint8_t bist;
+		uint32_t bar0;
+		uint32_t bar1;
+		uint32_t bar2;
+		uint32_t bar3;
+		uint32_t bar4;
+		uint32_t bar5;
+		uint32_t cardbus_cis_pointer;
+		uint16_t subsystem_vendor;
+		uint16_t subsystem_device;
+		uint32_t expansion_rom_base_address;
+		uint8_t capabilities_pointer;
+		uint8_t reserved[7];
+		uint8_t int_line;
+		uint8_t int_pin;
+		uint8_t min_grant;
+		uint8_t max_latency;
 	} __attribute__((packed)) bits;
-	uint32_t header[4];
+	uint32_t header[16];
 } __attribute__((packed)) pci_header_t;
 
 int pci_read_header(uint32_t bus, uint32_t device, uint32_t func, pci_header_t* header);
