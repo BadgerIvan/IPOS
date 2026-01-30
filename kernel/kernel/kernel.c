@@ -41,21 +41,6 @@ void kernel_main(multiboot_info_t* mbd, void* page_dir, void* first_page_table) 
 	init_keyboard();
     debug("Keyboard: successfully\n");
 
-	node_t* head = pci_scan_all();
-	if(head == NULL)
-		panic("Error pci");
-	node_t* current = head;
-	node_t* next;
-	while(current != NULL) {
-		next = current->next;
-		pci_header_t* header = (pci_header_t*)current->data;
-		printk("vendor: 0x%X, device: 0x%X, class: %d, subclass: %d\n", 
-			header->bits.vendor, header->bits.device, header->bits.class, header->bits.subclass);
-		current = next;
-	}
-	pci_free_data(&head);
-	free_list(&head);
-
 	while(1) {
 		asm volatile("hlt");
 	}
