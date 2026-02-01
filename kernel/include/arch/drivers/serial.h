@@ -2,7 +2,6 @@
 #define _SERIAL_H
 
 #include <stdint.h>
-#include <stdio.h>
 
 #define SERIAL_COM1 0x3F8      
 

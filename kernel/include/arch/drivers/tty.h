@@ -1,11 +1,7 @@
 #ifndef _TTY_H
 #define _TTY_H
 
-#include <stddef.h>
 #include <stdint.h>
-#include <stdio.h>
-
-#include <arch/drivers/vga.h>
 
 void init_terminal();
 void terminal_clear(uint8_t color);
